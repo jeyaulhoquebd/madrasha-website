@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>প্রয়োজনীয় ডাউনলোড ও ফর্ম - খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা</title>
+    <meta name="description" content="খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসার ভর্তি ফরম, সিলেবাস, রুটিন ও প্রাতিষ্ঠানিক ডকুমেন্টস ডাউনলোড সেন্টার।" />
+    <meta property="og:title" content="ডাউনলোড সেন্টার - খাগড়াছড়ি বায়তুশ শরফ মাদ্রাসা" />
+    <meta property="og:description" content="সকল প্রয়োজনীয় ফরম, সিলেবাস ও প্রাতিষ্ঠানিক নথি।" />
+    <meta property="og:image" content="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,13 +19,9 @@
   <body class="bg-stone-50 text-slate-800 antialiased font-['Hind_Siliguri',sans-serif] flex flex-col min-h-screen">
     <div id="site-header"></div>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">
-      <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-10 shadow-xs">
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#072e10] border-b border-stone-100 pb-4 mb-6">
-          প্রয়োজনীয় ডাউনলোড ও ফর্ম
-        </h1>
-
-        <div id="downloads-container"></div>
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+      <div id="downloads-page-container">
+        <div class="py-12 text-center text-stone-500">ডাউনলোড সেন্টার লোড হচ্ছে...</div>
       </div>
     </main>
 
@@ -26,18 +29,14 @@
 
     <script type="module">
       import { initPageLayout } from '/assets/js/components/layout.js';
-      import { renderEmptyState } from '/assets/js/components/emptyState.js';
+      import { initDownloadsPage } from '/assets/js/pages/downloadsPage.js';
 
       initPageLayout({
         activePage: 'downloads',
-        breadcrumbs: [{ label: 'ডাউনলোড', url: '/downloads.html' }]
+        breadcrumbs: [{ label: 'ডাউনলোড সেন্টার', url: '/downloads.html' }]
       });
 
-      document.getElementById('downloads-container').innerHTML = renderEmptyState({
-        title: 'বর্তমানে কোনো ফাইল নেই',
-        message: 'ভর্তি ফরম, পরীক্ষার সিলেবাস বা প্রাতিষ্ঠানিক নির্দেশিকা আপলোড করা হলে তা সরাসরি পিডিএফ বা ওয়ার্ড ফরম্যাটে ডাউনলোড করা যাবে।',
-        icon: 'folder'
-      });
+      initDownloadsPage();
     </script>
   </body>
 </html>

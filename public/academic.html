@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>শিক্ষা কার্যক্রম ও একাডেমিক তথ্য - খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা</title>
+    <meta name="description" content="খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসার শিক্ষা কার্যক্রম, শিক্ষাস্তর, পরীক্ষা পদ্ধতি ও বার্ষিক একাডেমিক ক্যালেন্ডার।" />
+    <meta property="og:title" content="শিক্ষা কার্যক্রম ও একাডেমিক তথ্য - খাগড়াছড়ি বায়তুশ শরফ মাদ্রাসা" />
+    <meta property="og:description" content="ইবতেদায়ী, দাখিল, আলিম ও ফাজিল (ডিগ্রী) স্তরের সমন্বিত শিক্ষাক্রম।" />
+    <meta property="og:image" content="https://res.cloudinary.com/edsn06rr/image/upload/v1793898407/a1a9d6b9-0f63-4ca4-bb47-8a8fc27dd326.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,17 +19,9 @@
   <body class="bg-stone-50 text-slate-800 antialiased font-['Hind_Siliguri',sans-serif] flex flex-col min-h-screen">
     <div id="site-header"></div>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
-      <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-10 shadow-xs space-y-6">
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#072e10] border-b border-stone-100 pb-4">
-          শিক্ষা কার্যক্রম ও পাঠ্যক্রম
-        </h1>
-        
-        <p class="text-stone-600 text-sm leading-relaxed">
-          খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসায় প্রাথমিক স্তর (ইবতেদায়ী) থেকে শুরু করে ফাজিল (ডিগ্রী) স্তর পর্যন্ত সরকার অনুমোদিত পাঠ্যক্রম অনুযায়ী পাঠদান করা হয়।
-        </p>
-
-        <div id="academic-content-container"></div>
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+      <div id="academic-dynamic-content">
+        <div class="py-12 text-center text-stone-500">একাডেমিক তথ্য লোড হচ্ছে...</div>
       </div>
     </main>
 
@@ -30,18 +29,14 @@
 
     <script type="module">
       import { initPageLayout } from '/assets/js/components/layout.js';
-      import { renderEmptyState } from '/assets/js/components/emptyState.js';
+      import { initAcademicPage } from '/assets/js/pages/academicPage.js';
 
       initPageLayout({
         activePage: 'academic',
-        breadcrumbs: [{ label: 'একাডেমিক', url: '/academic.html' }]
+        breadcrumbs: [{ label: 'একাডেমিক কার্যক্রম', url: '/academic.html' }]
       });
 
-      document.getElementById('academic-content-container').innerHTML = renderEmptyState({
-        title: 'একাডেমিক পূর্ণাঙ্গ তথ্য হালনাগাদাধীন',
-        message: 'চলতি শিক্ষাবর্ষের বিষয়ভিত্তিক বিস্তারিত পাঠ্যক্রম ও বিভাগীয় নির্দেশিকা প্রশাসনিকভাবে সংযোজন করা হচ্ছে।',
-        icon: 'folder'
-      });
+      initAcademicPage();
     </script>
   </body>
 </html>

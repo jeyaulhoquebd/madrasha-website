@@ -14,22 +14,24 @@ import { renderFooter } from './footer.js';
 /**
  * Initializes and mounts institutional components into target DOM slots
  * @param {object} options
- * @param {string} options.activePage - key of the active page (e.g. 'home', 'about', 'teachers', 'notices', etc.)
+ * @param {string} options.activePage - key of the active page
  * @param {Array} [options.breadcrumbs] - array of breadcrumb objects [{label, url}]
- * @param {boolean} [options.showTicker=true] - whether to show the notice ticker
+ * @param {boolean} [options.showTicker=false] - whether to show the notice ticker
  * @param {Array} [options.notices] - active ticker notices
+ * @param {object} [options.settings] - dynamic institutional settings from Firestore
  */
 export function initPageLayout({
   activePage = 'home',
   breadcrumbs = [],
   showTicker = false,
-  notices = []
+  notices = [],
+  settings = {}
 } = {}) {
   // 1. Mount Header & Nav
   const headerContainer = document.getElementById('site-header');
   if (headerContainer) {
     headerContainer.innerHTML = `
-      ${renderHeader()}
+      ${renderHeader(settings)}
       ${renderNavigation(activePage)}
       ${showTicker ? renderNoticeTicker(notices) : ''}
       ${breadcrumbs && breadcrumbs.length > 0 ? renderBreadcrumbs(breadcrumbs) : ''}
@@ -49,8 +51,37 @@ export function initPageLayout({
   // 3. Mount Footer
   const footerContainer = document.getElementById('site-footer');
   if (footerContainer) {
-    footerContainer.innerHTML = renderFooter();
+    footerContainer.innerHTML = renderFooter(settings);
   }
 
   console.log(`[Madrasa Portal] Layout initialized for page: ${activePage}`);
+}
+
+/**
+ * Updates dynamic settings in the mounted header and footer
+ */
+export function updateLayoutSettings(settings = {}) {
+  if (settings.phone) {
+    const headerPhone = document.getElementById('header-phone');
+    if (headerPhone) headerPhone.querySelector('span').textContent = settings.phone;
+    const footerPhone = document.getElementById('footer-phone');
+    if (footerPhone) footerPhone.innerHTML = `হেল্পলাইন: <span class="font-mono">${settings.phone}</span>`;
+  }
+
+  if (settings.email) {
+    const headerEmail = document.getElementById('header-email');
+    if (headerEmail) headerEmail.querySelector('span').textContent = settings.email;
+    const footerEmail = document.getElementById('footer-email');
+    if (footerEmail) footerEmail.innerHTML = `ইমেইল: <span class="font-mono">${settings.email}</span>`;
+  }
+
+  if (settings.address) {
+    const footerAddress = document.getElementById('footer-address');
+    if (footerAddress) footerAddress.textContent = settings.address;
+  }
+
+  if (settings.developerCredit) {
+    const devCredit = document.getElementById('footer-dev-credit');
+    if (devCredit) devCredit.textContent = settings.developerCredit;
+  }
 }

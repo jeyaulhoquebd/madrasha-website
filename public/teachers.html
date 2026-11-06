@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>সম্মানিত শিক্ষকবৃন্দ - খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা</title>
+    <meta name="description" content="খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসার সম্মানিত শিক্ষক মণ্ডলীর প্রোফাইল, পদবি, শিক্ষাগত যোগ্যতা ও বিষয়ভিত্তিক ডিরেক্টরি।" />
+    <meta property="og:title" content="শিক্ষক মণ্ডলী ডিরেক্টরি - খাগড়াছড়ি বায়তুশ শরফ মাদ্রাসা" />
+    <meta property="og:description" content="কুরআন, হাদিস, আরবি সাহিত্য ও সাধারণ বিজ্ঞানের অভিজ্ঞ শিক্ষক মণ্ডলী।" />
+    <meta property="og:image" content="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,18 +19,9 @@
   <body class="bg-stone-50 text-slate-800 antialiased font-['Hind_Siliguri',sans-serif] flex flex-col min-h-screen">
     <div id="site-header"></div>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
-      <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-10 shadow-xs space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-stone-100 pb-4 gap-2">
-          <h1 class="text-2xl sm:text-3xl font-bold text-[#072e10]">
-            সম্মানিত শিক্ষক মণ্ডলী
-          </h1>
-          <span class="text-xs text-stone-500 font-medium">
-            যাচাইকৃত অনুষদ তথ্য
-          </span>
-        </div>
-        
-        <div id="teachers-grid"></div>
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+      <div id="teachers-page-container">
+        <div class="py-12 text-center text-stone-500">শিক্ষক ডিরেক্টরি প্রস্তুত হচ্ছে...</div>
       </div>
     </main>
 
@@ -31,22 +29,17 @@
 
     <script type="module">
       import { initPageLayout } from '/assets/js/components/layout.js';
-      import { renderEmptyState } from '/assets/js/components/emptyState.js';
+      import { initTeachersPage } from '/assets/js/pages/teachersPage.js';
 
       initPageLayout({
         activePage: 'teachers',
         breadcrumbs: [
           { label: 'প্রশাসন', url: '/administration.html' },
-          { label: 'শিক্ষকবৃন্দ' }
+          { label: 'শিক্ষক মণ্ডলী ডিরেক্টরি' }
         ]
       });
 
-      // Strict adherence: No fabricated names or counts
-      document.getElementById('teachers-grid').innerHTML = renderEmptyState({
-        title: 'শিক্ষক মণ্ডলীর পূর্ণাঙ্গ তালিকা হালনাগাদাধীন',
-        message: 'মাদ্রাসার সম্মানিত শিক্ষকবৃন্দের তথ্য ও প্রোফাইল প্রশাসনিকভাবে ডাটাবেজে অন্তর্ভুক্তির প্রক্রিয়া চলছে। অনুমোদিত তালিকা শীঘ্রই দৃশ্যমান হবে।',
-        icon: 'users'
-      });
+      initTeachersPage();
     </script>
   </body>
 </html>

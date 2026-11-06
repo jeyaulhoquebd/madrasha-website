@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>নোটিশ বিবরণ - খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা</title>
+    <title>নোটিশের বিস্তারিত - খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা</title>
+    <meta name="description" content="খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসার অফিসিয়াল নোটিশের সম্পূর্ণ বিবরণ।" />
+    <meta property="og:title" content="নোটিশের বিস্তারিত - খাগড়াছড়ি বায়তুশ শরফ মাদ্রাসা" />
+    <meta property="og:description" content="অফিসিয়াল প্রাতিষ্ঠানিক আদেশ ও বিজ্ঞপ্তি।" />
+    <meta property="og:image" content="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,13 +19,9 @@
   <body class="bg-stone-50 text-slate-800 antialiased font-['Hind_Siliguri',sans-serif] flex flex-col min-h-screen">
     <div id="site-header"></div>
 
-    <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-6">
-      <div id="notice-details-card" class="bg-white rounded-xl border border-stone-200 p-6 sm:p-10 shadow-xs">
-        <a href="/notices.html" class="inline-flex items-center text-xs font-semibold text-[#0B4619] hover:underline mb-4">
-          ← সকল নোটিশে ফিরে যান
-        </a>
-
-        <div id="notice-content-area"></div>
+    <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+      <div id="notice-detail-container">
+        <div class="py-12 text-center text-stone-500">নোটিশের বিবরণ লোড হচ্ছে...</div>
       </div>
     </main>
 
@@ -26,7 +29,7 @@
 
     <script type="module">
       import { initPageLayout } from '/assets/js/components/layout.js';
-      import { renderEmptyState } from '/assets/js/components/emptyState.js';
+      import { initNoticeDetailsPage } from '/assets/js/pages/noticeDetailsPage.js';
 
       initPageLayout({
         activePage: 'notices',
@@ -36,13 +39,7 @@
         ]
       });
 
-      document.getElementById('notice-content-area').innerHTML = renderEmptyState({
-        title: 'নির্দিষ্ট নোটিশটি খুঁজে পাওয়া যায়নি',
-        message: 'নোটিশটি মুছে ফেলা হতে পারে অথবা লিংকটি সঠিক নয়। অনুগ্রহ করে নোটিশ বোর্ডের তালিকা দেখুন।',
-        icon: 'document',
-        actionText: 'নোটিশ বোর্ডে যান',
-        actionUrl: '/notices.html'
-      });
+      initNoticeDetailsPage();
     </script>
   </body>
 </html>

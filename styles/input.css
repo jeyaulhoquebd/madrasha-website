@@ -20,18 +20,50 @@
 /* Custom Islamic Patterns & Subtle Enhancements */
 .bg-islamic-pattern {
   background-color: #0b4619;
-  background-image: radial-gradient(#d4af37 0.75px, transparent 0.75px), radial-gradient(#d4af37 0.75px, #0b4619 0.75px);
-  background-size: 30px 30px;
-  background-position: 0 0, 15px 15px;
-  background-opacity: 0.08;
+  background-image: radial-gradient(#d4af37 0.85px, transparent 0.85px), radial-gradient(#d4af37 0.85px, #0b4619 0.85px);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
 }
 
 .gold-gradient {
-  background: linear-gradient(135deg, #f6e8b1 0%, #d4af37 50%, #aa820a 100%);
+  background: linear-gradient(135deg, #fbf0b9 0%, #d4af37 50%, #aa820a 100%);
 }
 
 .text-gold-gradient {
-  background: linear-gradient(135deg, #f6e8b1 0%, #d4af37 50%, #b89628 100%);
+  background: linear-gradient(135deg, #fcf5c7 0%, #d4af37 50%, #b89628 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Notice Ticker Animation */
+@keyframes ticker-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-ticker {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker-scroll 25s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* Islamic arch decorative border */
+.islamic-card-header {
+  border-bottom: 2px solid #d4af37;
+  position: relative;
+}
+
+.islamic-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background-color: #d4af37;
 }
