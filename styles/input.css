@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #0b4619;
+    --primary-dark: #072e10;
+    --primary-light: #166534;
+    --accent: #d4af37;
+    --accent-dark: #b89628;
+    --accent-light: #fef08a;
+  }
+
+  body {
+    font-family: 'Hind Siliguri', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
+    background-color: #f8faf8;
+    color: #1e293b;
+  }
+}
+
+/* Custom Islamic Patterns & Subtle Enhancements */
+.bg-islamic-pattern {
+  background-color: #0b4619;
+  background-image: radial-gradient(#d4af37 0.75px, transparent 0.75px), radial-gradient(#d4af37 0.75px, #0b4619 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  background-opacity: 0.08;
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #f6e8b1 0%, #d4af37 50%, #aa820a 100%);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #f6e8b1 0%, #d4af37 50%, #b89628 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
