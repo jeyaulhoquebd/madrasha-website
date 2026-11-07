@@ -60,25 +60,45 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /administration/{memberId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /calendar/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Admission applications: Public can submit; Admin can view/manage
     match /admissions/{admissionId} {
-      allow create: if request.resource.data.keys().hasAll(['studentName', 'phone', 'classApplied']) &&
-                       request.resource.data.studentName is string &&
-                       request.resource.data.phone is string;
+      allow create: if request.resource.data.keys().hasOnly(['studentName', 'classApplied', 'phone', 'fatherName', 'motherName', 'address', 'previousSchool', 'status', 'createdAt']) &&
+                       request.resource.data.keys().hasAll(['studentName', 'phone', 'classApplied']) &&
+                       request.resource.data.studentName is string && request.resource.data.studentName.size() <= 100 &&
+                       request.resource.data.phone is string && request.resource.data.phone.size() <= 20 &&
+                       request.resource.data.classApplied is string && request.resource.data.classApplied.size() <= 60 &&
+                       request.resource.data.status == 'pending';
       allow read, update, delete: if isAdmin();
     }
 
     // Contact messages / inquiries: Public can create, Admin can read/delete
     match /messages/{messageId} {
-      allow create: if request.resource.data.keys().hasAll(['name', 'phone', 'message']) &&
-                       request.resource.data.name is string &&
-                       request.resource.data.message is string;
+      allow create: if request.resource.data.keys().hasOnly(['name', 'phone', 'email', 'subject', 'message', 'createdAt']) &&
+                       request.resource.data.keys().hasAll(['name', 'phone', 'message']) &&
+                       request.resource.data.name is string && request.resource.data.name.size() <= 100 &&
+                       request.resource.data.phone is string && request.resource.data.phone.size() <= 20 &&
+                       request.resource.data.message is string && request.resource.data.message.size() <= 2000;
       allow read, update, delete: if isAdmin();
     }
 
-    // Admin profiles: Only authenticated admins can read/write
+    // Admin registry: a user may only check their OWN admin record.
+    // Nobody can create or modify admin records from the client — add them
+    // manually in the Firebase Console (admins/{uid}) or via the Admin SDK.
+    // (Previously any signed-in user could create admins/{their uid} and
+    //  thereby make themselves an administrator.)
     match /admins/{adminId} {
-      allow read, write: if isAuthenticated() && request.auth.uid == adminId;
+      allow read: if isAuthenticated() && request.auth.uid == adminId;
+      allow write: if false;
     }
   }
 }

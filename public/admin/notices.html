@@ -6,26 +6,26 @@
     <title>নোটিশ ব্যবস্থাপনা - প্রশাসনিক পোর্টাল</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/output.css">
   </head>
-  <body class="bg-stone-100 text-slate-800 antialiased font-['Hind_Siliguri',sans-serif] min-h-screen flex flex-col">
+  <body class="flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot"></div>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-stone-200">
+    <main class="mx-auto w-full max-w-6xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 card p-6">
         <div>
-          <h1 class="text-xl sm:text-2xl font-bold text-[#072e10]">নোটিশ ব্যবস্থাপনা</h1>
+          <h1 class="text-xl sm:text-2xl font-bold text-brand-900">নোটিশ ব্যবস্থাপনা</h1>
           <p class="text-xs sm:text-sm text-stone-500 mt-1">মাদ্রাসার অফিসিয়াল নোটিশ সংযোজন, সম্পাদনা ও প্রকাশ</p>
         </div>
-        <button id="add-notice-btn" class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B4619] hover:bg-[#072e10] text-white text-xs font-bold rounded-lg shadow transition">
+        <button id="add-notice-btn" class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold rounded-lg transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
           <span>নতুন নোটিশ তৈরি করুন</span>
         </button>
       </div>
 
       <!-- Notices Management Table / Placeholder -->
-      <div class="bg-white rounded-xl border border-stone-200 p-6 shadow-xs">
+      <div class="card p-6">
         <div id="admin-notices-table">
           <p class="text-xs text-stone-500 text-center py-8">কোনো নোটিশ পাওয়া যায়নি। নতুন নোটিশ যুক্ত করতে ওপরের বাটনে ক্লিক করুন।</p>
         </div>
@@ -33,8 +33,8 @@
     </main>
 
     <script type="module">
-      import { renderAdminHeader } from '/assets/js/admin/adminLayout.js';
-      document.getElementById('admin-header-slot').innerHTML = renderAdminHeader('notices');
+      import { initAdminPage } from '/assets/js/admin/adminLayout.js';
+      initAdminPage('notices');
     </script>
   </body>
 </html>

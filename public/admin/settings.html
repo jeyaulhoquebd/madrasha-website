@@ -6,70 +6,82 @@
     <title>সাধারণ সেটিংস - প্রশাসনিক পোর্টাল</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/output.css">
   </head>
-  <body class="bg-stone-100 text-slate-800 antialiased font-['Hind_Siliguri',sans-serif] min-h-screen flex flex-col">
+  <body class="flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot"></div>
 
-    <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
-      <div class="bg-white p-6 rounded-xl border border-stone-200">
-        <h1 class="text-xl sm:text-2xl font-bold text-[#072e10]">প্রাতিষ্ঠানিক ও প্রযুক্তিগত সেটিংস</h1>
-        <p class="text-xs sm:text-sm text-stone-500 mt-1">মাদ্রাসার ঠিকানা, ফোন, ইমেইল ও ক্লাউড কনফিগারেশন</p>
+    <main class="mx-auto w-full max-w-3xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <div>
+        <h1 class="text-2xl font-bold text-brand-900">সাধারণ সেটিংস</h1>
+        <p class="mt-1 text-sm text-stone-500">এখানে দেওয়া যোগাযোগের তথ্য ওয়েবসাইটের হেডার, ফুটার ও যোগাযোগ পাতায় দেখা যাবে। খালি রাখলে তা দেখানো হবে না।</p>
       </div>
 
-      <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs space-y-6">
-        <form id="settings-form" class="space-y-4 text-xs sm:text-sm">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">প্রতিষ্ঠানের নাম</label>
-            <input type="text" readonly value="খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা" class="w-full px-3.5 py-2.5 border border-stone-200 bg-stone-50 rounded-lg text-slate-700">
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">ইআইআইএন (EIIN)</label>
-              <input type="text" readonly value="১৩১৩২৫" class="w-full px-3.5 py-2.5 border border-stone-200 bg-stone-50 rounded-lg text-slate-700 font-mono">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">প্রতিষ্ঠা সাল</label>
-              <input type="text" readonly value="১৯৯৮" class="w-full px-3.5 py-2.5 border border-stone-200 bg-stone-50 rounded-lg text-slate-700">
-            </div>
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">ক্যাম্পাসের ঠিকানা</label>
-            <input type="text" value="জেল রোড, খাগড়াছড়ি সদর, খাগড়াছড়ি পার্বত্য জেলা" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#0B4619] bg-white text-slate-800">
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">অফিসিয়াল ইমেইল</label>
-              <input type="email" value="info@kbjadfml.edu.bd" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#0B4619] bg-white text-slate-800">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">হেল্পলাইন নম্বর</label>
-              <input type="text" value="০১৮১৬-XXXXXX" class="w-full px-3.5 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#0B4619] bg-white text-slate-800">
-            </div>
-          </div>
-
-          <div class="pt-4 border-t border-stone-100 flex justify-end">
-            <button type="submit" class="px-5 py-2.5 bg-[#0B4619] hover:bg-[#072e10] text-white font-bold rounded-lg shadow transition">
-              পরিবর্তন সংরক্ষণ করুন
-            </button>
-          </div>
-        </form>
-      </div>
+      <form id="settings-form" class="card space-y-5 p-6 sm:p-8">
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="block sm:col-span-2"><span class="field-label">প্রতিষ্ঠানের নাম</span>
+            <input type="text" readonly value="খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা" class="field bg-stone-50 text-stone-500"></label>
+          <label class="block sm:col-span-2"><span class="field-label">ঠিকানা</span>
+            <input type="text" name="address" maxlength="200" class="field" placeholder="জেল রোড, খাগড়াছড়ি সদর, খাগড়াছড়ি পার্বত্য জেলা"></label>
+          <label class="block"><span class="field-label">ফোন নম্বর</span>
+            <input type="tel" name="phone" maxlength="30" class="field"></label>
+          <label class="block"><span class="field-label">ইমেইল</span>
+            <input type="email" name="email" maxlength="120" class="field"></label>
+          <label class="block"><span class="field-label">অফিস সময়</span>
+            <input type="text" name="officeHours" maxlength="100" class="field" placeholder="শনি – বৃহস্পতি, সকাল ৯টা – বিকাল ৪টা"></label>
+          <label class="block"><span class="field-label">ডেভেলপার ক্রেডিট</span>
+            <input type="text" name="developerCredit" maxlength="100" class="field"></label>
+          <label class="block"><span class="field-label">ফেসবুক পেজ লিংক</span>
+            <input type="url" name="facebookUrl" maxlength="300" class="field" placeholder="https://facebook.com/..."></label>
+          <label class="block"><span class="field-label">ইউটিউব চ্যানেল লিংক</span>
+            <input type="url" name="youtubeUrl" maxlength="300" class="field" placeholder="https://youtube.com/..."></label>
+          <label class="block sm:col-span-2"><span class="field-label">গুগল ম্যাপ এম্বেড লিংক</span>
+            <input type="url" name="mapEmbedUrl" maxlength="1000" class="field" placeholder="https://www.google.com/maps/embed?pb=..."></label>
+        </div>
+        <div class="flex justify-end border-t border-stone-100 pt-5">
+          <button type="submit" id="settings-save-btn" class="btn btn-primary">সংরক্ষণ করুন</button>
+        </div>
+      </form>
     </main>
 
     <script type="module">
-      import { renderAdminHeader } from '/assets/js/admin/adminLayout.js';
+      import { initAdminPage } from '/assets/js/admin/adminLayout.js';
+      import { db, doc, getDoc, setDoc, serverTimestamp } from '/assets/js/firebase/config.js';
       import { showAlert } from '/assets/js/components/alert.js';
 
-      document.getElementById('admin-header-slot').innerHTML = renderAdminHeader('settings');
+      const FIELDS = ['address', 'phone', 'email', 'officeHours', 'developerCredit', 'facebookUrl', 'youtubeUrl', 'mapEmbedUrl'];
+      const form = document.getElementById('settings-form');
+      const btn = document.getElementById('settings-save-btn');
 
-      document.getElementById('settings-form')?.addEventListener('submit', (e) => {
+      await initAdminPage('settings');
+
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'general'));
+        if (snap.exists()) {
+          const data = snap.data();
+          FIELDS.forEach(f => { if (data[f]) form.elements[f].value = data[f]; });
+        }
+      } catch (e) {
+        showAlert({ type: 'error', message: 'সেটিংস লোড করা যায়নি: ' + e.message });
+      }
+
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        showAlert({ type: 'success', message: 'সেটিংস সফলভাবে সংরক্ষিত হয়েছে।' });
+        const data = { updatedAt: serverTimestamp() };
+        FIELDS.forEach(f => { data[f] = form.elements[f].value.trim(); });
+
+        btn.disabled = true;
+        btn.textContent = 'সংরক্ষণ হচ্ছে...';
+        try {
+          await setDoc(doc(db, 'settings', 'general'), data, { merge: true });
+          showAlert({ type: 'success', message: 'সেটিংস সংরক্ষিত হয়েছে।' });
+        } catch (err) {
+          showAlert({ type: 'error', message: 'সংরক্ষণ ব্যর্থ হয়েছে: ' + err.message });
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'সংরক্ষণ করুন';
+        }
       });
     </script>
   </body>
