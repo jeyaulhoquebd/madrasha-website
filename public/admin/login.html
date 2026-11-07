@@ -33,7 +33,7 @@
     </div>
 
     <script type="module">
-      import { auth, db, doc, getDoc, signInWithEmailAndPassword, signOut } from '/assets/js/firebase/config.js';
+      import { auth, isAdminUser, signInWithEmailAndPassword, signOut } from '/assets/js/firebase/config.js';
       import { showAlert } from '/assets/js/components/alert.js';
 
       const form = document.getElementById('admin-login-form');
@@ -66,8 +66,7 @@
         btn.textContent = 'যাচাই করা হচ্ছে...';
         try {
           const { user } = await signInWithEmailAndPassword(auth, document.getElementById('admin-email').value.trim(), document.getElementById('admin-password').value);
-          const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-          if (!adminDoc.exists()) {
+          if (!(await isAdminUser(user))) {
             await signOut(auth);
             throw { code: 'not-admin' };
           }

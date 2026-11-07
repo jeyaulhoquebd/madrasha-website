@@ -19,6 +19,13 @@ export const firebaseConfig = {
   appId: ''
 };
 
+/**
+ * Firebase Authentication UIDs of administrators.
+ * Keep in sync with isAdmin() in firestore.rules (the rules are what actually
+ * protect the data; this list only controls access to the admin pages).
+ */
+export const ADMIN_UIDS = ['8ALeLYl29me8iozWeTVFoe0FIJ63'];
+
 /** True only when real credentials have been filled in above. */
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
@@ -76,3 +83,19 @@ export const where = fsMod.where || notReady;
 export const orderBy = fsMod.orderBy || notReady;
 export const limit = fsMod.limit || notReady;
 export const serverTimestamp = fsMod.serverTimestamp || (() => new Date().toISOString());
+
+/**
+ * Returns true if the signed-in user is an administrator:
+ * listed in ADMIN_UIDS, or has a document at admins/{uid}.
+ */
+export async function isAdminUser(user) {
+  if (!user) return false;
+  if (ADMIN_UIDS.includes(user.uid)) return true;
+  if (!dbInstance) return false;
+  try {
+    const snap = await fsMod.getDoc(fsMod.doc(dbInstance, 'admins', user.uid));
+    return snap.exists();
+  } catch {
+    return false;
+  }
+}
