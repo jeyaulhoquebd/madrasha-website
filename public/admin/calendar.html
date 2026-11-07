@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>একাডেমিক ক্যালেন্ডার — প্রশাসনিক প্যানেল</title>
+    <link rel="icon" href="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/output.css">
+  </head>
+  <body class="flex min-h-screen flex-col bg-ivory">
+    <div id="admin-header-slot"></div>
+
+    <main id="crud-root" class="mx-auto w-full max-w-6xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8"></main>
+
+    <script type="module">
+      import { initAdminPage } from '/assets/js/admin/adminLayout.js';
+      import { mountCrud } from '/assets/js/admin/crud.js';
+      import { COLLECTIONS } from '/assets/js/admin/collections.js';
+
+      await initAdminPage('calendar');
+      mountCrud(COLLECTIONS.calendar);
+    </script>
+  </body>
+</html>

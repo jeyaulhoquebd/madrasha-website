@@ -2,106 +2,92 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
+    // ---------- Helpers ----------
     function isAuthenticated() {
       return request.auth != null;
     }
 
     // Primary administrator (Firebase Authentication UID).
-    // To add another admin, append their UID here or create admins/{uid} in the Console.
+    // To add another admin: append the UID to this list (and to ADMIN_UIDS in
+    // public/assets/js/firebase/config.js), or create admins/{uid} in the Console.
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.uid in ['8ALeLYl29me8iozWeTVFoe0FIJ63'] ||
-        request.auth.token.admin == true ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
     }
 
-    // Public institutional read collections (Admin write only)
+    function str(field, maxLen) {
+      return request.resource.data[field] is string && request.resource.data[field].size() <= maxLen;
+    }
+
+    function optStr(field, maxLen) {
+      return !(field in request.resource.data) || str(field, maxLen);
+    }
+
+    // ---------- Public website content (anyone reads, only admins write) ----------
     match /settings/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    match /notices/{noticeId} {
+    match /teachers/{id}       { allow read: if true; allow write: if isAdmin(); }
+    match /staff/{id}          { allow read: if true; allow write: if isAdmin(); }
+    match /administration/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /departments/{id}    { allow read: if true; allow write: if isAdmin(); }
+    match /routines/{id}       { allow read: if true; allow write: if isAdmin(); }
+    match /downloads/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /gallery/{id}        { allow read: if true; allow write: if isAdmin(); }
+    match /calendar/{id}       { allow read: if true; allow write: if isAdmin(); }
+
+    // Notices & results: the public sees only published documents
+    match /notices/{id} {
       allow read: if resource.data.isPublished == true || isAdmin();
       allow write: if isAdmin();
     }
 
-    match /teachers/{teacherId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /staff/{staffId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /departments/{deptId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /results/{resultId} {
+    match /results/{id} {
       allow read: if resource.data.isPublished == true || isAdmin();
       allow write: if isAdmin();
     }
 
-    match /routines/{routineId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /downloads/{downloadId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /gallery/{imageId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /administration/{memberId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /calendar/{eventId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Admission applications: Public can submit; Admin can view/manage
-    match /admissions/{admissionId} {
-      allow create: if request.resource.data.keys().hasOnly(['studentName', 'classApplied', 'phone', 'fatherName', 'motherName', 'address', 'previousSchool', 'status', 'createdAt']) &&
-                       request.resource.data.keys().hasAll(['studentName', 'phone', 'classApplied']) &&
-                       request.resource.data.studentName is string && request.resource.data.studentName.size() <= 100 &&
-                       request.resource.data.phone is string && request.resource.data.phone.size() <= 20 &&
-                       request.resource.data.classApplied is string && request.resource.data.classApplied.size() <= 60 &&
-                       request.resource.data.status == 'pending';
+    // ---------- Public submissions (anyone creates, only admins read/manage) ----------
+    match /admissions/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['studentName', 'classApplied', 'phone', 'fatherName', 'motherName', 'address', 'previousSchool', 'status', 'createdAt'])
+                    && str('studentName', 100) && request.resource.data.studentName.size() > 0
+                    && str('classApplied', 60)
+                    && str('phone', 20)
+                    && optStr('fatherName', 100)
+                    && optStr('motherName', 100)
+                    && optStr('address', 300)
+                    && optStr('previousSchool', 150)
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time;
       allow read, update, delete: if isAdmin();
     }
 
-    // Contact messages / inquiries: Public can create, Admin can read/delete
-    match /messages/{messageId} {
-      allow create: if request.resource.data.keys().hasOnly(['name', 'phone', 'email', 'subject', 'message', 'createdAt']) &&
-                       request.resource.data.keys().hasAll(['name', 'phone', 'message']) &&
-                       request.resource.data.name is string && request.resource.data.name.size() <= 100 &&
-                       request.resource.data.phone is string && request.resource.data.phone.size() <= 20 &&
-                       request.resource.data.message is string && request.resource.data.message.size() <= 2000;
+    match /messages/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'phone', 'email', 'subject', 'message', 'createdAt'])
+                    && str('name', 100) && request.resource.data.name.size() > 0
+                    && str('phone', 20)
+                    && optStr('email', 120)
+                    && optStr('subject', 60)
+                    && str('message', 2000) && request.resource.data.message.size() > 0
+                    && request.resource.data.createdAt == request.time;
       allow read, update, delete: if isAdmin();
     }
 
-    // Admin registry: a user may only check their OWN admin record.
-    // Nobody can create or modify admin records from the client — add them
-    // manually in the Firebase Console (admins/{uid}) or via the Admin SDK.
-    // (Previously any signed-in user could create admins/{their uid} and
-    //  thereby make themselves an administrator.)
+    // ---------- Admin registry ----------
+    // A user may only read their own record. Nobody can write it from the
+    // website: add extra admins from the Firebase Console.
     match /admins/{adminId} {
       allow read: if isAuthenticated() && request.auth.uid == adminId;
       allow write: if false;
+    }
+
+    // Everything else is closed
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

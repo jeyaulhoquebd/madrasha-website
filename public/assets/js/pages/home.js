@@ -5,7 +5,7 @@
  */
 
 import { db, collection, doc, getDocs, getDoc, query, where, orderBy, limit } from '../firebase/config.js';
-import { formatBengaliDate } from '../utils/date.js';
+import { formatBengaliDate, sortByDateDesc } from '../utils/date.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { getGeneralSettings } from '../components/layout.js';
 import { renderNoticeTicker } from '../components/noticeTicker.js';
@@ -33,13 +33,9 @@ export async function loadRecentNotices() {
   }
 
   try {
-    const snapshot = await getDocs(query(
-      collection(db, 'notices'),
-      where('isPublished', '==', true),
-      orderBy('publishedAt', 'desc'),
-      limit(5)
-    ));
-    const notices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Single-field filter only (no composite index needed); sorted on the client
+    const snapshot = await getDocs(query(collection(db, 'notices'), where('isPublished', '==', true)));
+    const notices = sortByDateDesc(snapshot.docs.map(d => ({ id: d.id, ...d.data() })), 'publishedAt').slice(0, 5);
 
     if (container) {
       container.innerHTML = notices.length === 0

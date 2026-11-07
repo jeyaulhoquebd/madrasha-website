@@ -4,8 +4,8 @@
  * Firestore: notices { title, category, summary, content, fileUrl, isPublished, publishedAt }
  */
 
-import { db, collection, getDocs, query, orderBy, where } from '../firebase/config.js';
-import { formatBengaliDate, toBengaliNumber } from '../utils/date.js';
+import { db, collection, getDocs, query, where } from '../firebase/config.js';
+import { formatBengaliDate, toBengaliNumber, sortByDateDesc } from '../utils/date.js';
 import { renderPagination, initPagination } from '../components/pagination.js';
 import { renderEmptyState } from '../components/emptyState.js';
 import { renderPageHeader } from '../components/pageHeader.js';
@@ -53,8 +53,9 @@ export async function initNoticesPage() {
   allNotices = [];
   if (db) {
     try {
-      const snap = await getDocs(query(collection(db, 'notices'), where('isPublished', '==', true), orderBy('publishedAt', 'desc')));
+      const snap = await getDocs(query(collection(db, 'notices'), where('isPublished', '==', true)));
       snap.forEach(d => allNotices.push({ id: d.id, ...d.data() }));
+      sortByDateDesc(allNotices, 'publishedAt');
     } catch (e) {
       console.warn('[Firestore] notices:', e.message);
     }

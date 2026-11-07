@@ -57,3 +57,17 @@ export function formatBengaliDate(dateInput, includeTime = false) {
 
   return formatted;
 }
+
+/** Milliseconds from a Firestore Timestamp / Date / string (0 if missing) */
+export function toMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === 'function') return value.toMillis();
+  if (value.seconds) return value.seconds * 1000;
+  const t = new Date(value).getTime();
+  return isNaN(t) ? 0 : t;
+}
+
+/** Sorts records newest first by the given date field */
+export function sortByDateDesc(items, field) {
+  return items.sort((a, b) => toMillis(b[field]) - toMillis(a[field]));
+}

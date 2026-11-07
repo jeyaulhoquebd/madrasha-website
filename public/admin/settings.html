@@ -3,45 +3,103 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>সাধারণ সেটিংস - প্রশাসনিক পোর্টাল</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <title>সেটিংস — প্রশাসনিক প্যানেল</title>
+    <link rel="icon" href="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/output.css">
   </head>
   <body class="flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot"></div>
 
-    <main class="mx-auto w-full max-w-3xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <main class="mx-auto w-full max-w-4xl flex-grow space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       <div>
-        <h1 class="text-2xl font-bold text-brand-900">সাধারণ সেটিংস</h1>
-        <p class="mt-1 text-sm text-stone-500">এখানে দেওয়া যোগাযোগের তথ্য ওয়েবসাইটের হেডার, ফুটার ও যোগাযোগ পাতায় দেখা যাবে। খালি রাখলে তা দেখানো হবে না।</p>
+        <h1 class="text-2xl font-bold text-brand-900">সেটিংস</h1>
+        <p class="mt-1 text-sm text-stone-500">এখানের তথ্য সরাসরি ওয়েবসাইটে দেখা যাবে। কোনো ঘর খালি রাখলে সেটি ওয়েবসাইটে দেখানো হবে না।</p>
       </div>
 
-      <form id="settings-form" class="card space-y-5 p-6 sm:p-8">
+      <nav class="flex flex-wrap gap-2" aria-label="সেটিংস বিভাগ">
+        <a href="#general" class="chip">যোগাযোগ</a>
+        <a href="#principal" class="chip">অধ্যক্ষের বাণী</a>
+        <a href="#admission" class="chip">ভর্তি</a>
+        <a href="#about" class="chip">পরিচিতি</a>
+        <a href="#upload" class="chip">ফাইল আপলোড</a>
+      </nav>
+
+      <form data-doc="general" id="general" class="card scroll-mt-6 space-y-5 p-6 sm:p-8">
+        <h2 class="text-lg font-semibold text-brand-900">যোগাযোগের তথ্য</h2>
         <div class="grid gap-5 sm:grid-cols-2">
-          <label class="block sm:col-span-2"><span class="field-label">প্রতিষ্ঠানের নাম</span>
-            <input type="text" readonly value="খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা" class="field bg-stone-50 text-stone-500"></label>
           <label class="block sm:col-span-2"><span class="field-label">ঠিকানা</span>
-            <input type="text" name="address" maxlength="200" class="field" placeholder="জেল রোড, খাগড়াছড়ি সদর, খাগড়াছড়ি পার্বত্য জেলা"></label>
-          <label class="block"><span class="field-label">ফোন নম্বর</span>
-            <input type="tel" name="phone" maxlength="30" class="field"></label>
-          <label class="block"><span class="field-label">ইমেইল</span>
-            <input type="email" name="email" maxlength="120" class="field"></label>
-          <label class="block"><span class="field-label">অফিস সময়</span>
-            <input type="text" name="officeHours" maxlength="100" class="field" placeholder="শনি – বৃহস্পতি, সকাল ৯টা – বিকাল ৪টা"></label>
-          <label class="block"><span class="field-label">ডেভেলপার ক্রেডিট</span>
-            <input type="text" name="developerCredit" maxlength="100" class="field"></label>
-          <label class="block"><span class="field-label">ফেসবুক পেজ লিংক</span>
-            <input type="url" name="facebookUrl" maxlength="300" class="field" placeholder="https://facebook.com/..."></label>
-          <label class="block"><span class="field-label">ইউটিউব চ্যানেল লিংক</span>
-            <input type="url" name="youtubeUrl" maxlength="300" class="field" placeholder="https://youtube.com/..."></label>
+            <input name="address" maxlength="200" class="field" placeholder="জেল রোড, খাগড়াছড়ি সদর, খাগড়াছড়ি পার্বত্য জেলা"></label>
+          <label class="block"><span class="field-label">ফোন নম্বর</span><input type="tel" name="phone" maxlength="30" class="field"></label>
+          <label class="block"><span class="field-label">ইমেইল</span><input type="email" name="email" maxlength="120" class="field"></label>
+          <label class="block"><span class="field-label">অফিস সময়</span><input name="officeHours" maxlength="100" class="field" placeholder="শনি – বৃহস্পতি, সকাল ৯টা – বিকাল ৪টা"></label>
+          <label class="block"><span class="field-label">ডেভেলপার ক্রেডিট</span><input name="developerCredit" maxlength="100" class="field"></label>
+          <label class="block"><span class="field-label">ফেসবুক পেজ</span><input type="url" name="facebookUrl" maxlength="300" class="field" placeholder="https://facebook.com/..."></label>
+          <label class="block"><span class="field-label">ইউটিউব চ্যানেল</span><input type="url" name="youtubeUrl" maxlength="300" class="field" placeholder="https://youtube.com/..."></label>
           <label class="block sm:col-span-2"><span class="field-label">গুগল ম্যাপ এম্বেড লিংক</span>
-            <input type="url" name="mapEmbedUrl" maxlength="1000" class="field" placeholder="https://www.google.com/maps/embed?pb=..."></label>
+            <input type="url" name="mapEmbedUrl" maxlength="1500" class="field" placeholder="https://www.google.com/maps/embed?pb=...">
+            <span class="mt-1 block text-xs text-stone-400">Google Maps → Share → Embed a map → শুধু src="..." এর ভেতরের লিংকটি দিন।</span></label>
         </div>
-        <div class="flex justify-end border-t border-stone-100 pt-5">
-          <button type="submit" id="settings-save-btn" class="btn btn-primary">সংরক্ষণ করুন</button>
+        <div class="flex justify-end border-t border-stone-100 pt-5"><button type="submit" class="btn btn-primary">সংরক্ষণ</button></div>
+      </form>
+
+      <form data-doc="principal" id="principal" class="card scroll-mt-6 space-y-5 p-6 sm:p-8">
+        <h2 class="text-lg font-semibold text-brand-900">অধ্যক্ষের বাণী</h2>
+        <p class="-mt-3 text-sm text-stone-500">হোমপেজ ও প্রশাসন পাতায় দেখাবে।</p>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="block"><span class="field-label">নাম</span><input name="name" maxlength="100" class="field"></label>
+          <label class="block"><span class="field-label">পদবি</span><input name="designation" maxlength="100" class="field" placeholder="অধ্যক্ষ"></label>
+          <label class="block sm:col-span-2"><span class="field-label">ছবির লিংক</span><input type="url" name="photoUrl" maxlength="1000" class="field"></label>
+          <label class="block sm:col-span-2"><span class="field-label">বাণী</span><textarea name="message" rows="5" maxlength="3000" class="field"></textarea></label>
         </div>
+        <div class="flex justify-end border-t border-stone-100 pt-5"><button type="submit" class="btn btn-primary">সংরক্ষণ</button></div>
+      </form>
+
+      <form data-doc="admission" id="admission" class="card scroll-mt-6 space-y-5 p-6 sm:p-8">
+        <h2 class="text-lg font-semibold text-brand-900">ভর্তি</h2>
+        <div class="grid gap-5">
+          <label class="flex items-center gap-3 rounded-lg border border-stone-200 px-4 py-3">
+            <input type="checkbox" name="isOpen" class="h-4 w-4 accent-brand-700" checked>
+            <span class="text-sm text-stone-700">অনলাইন ভর্তি আবেদন চালু রাখুন</span></label>
+          <label class="block"><span class="field-label">শিরোনাম</span><input name="title" maxlength="200" class="field" placeholder="২০২৭ শিক্ষাবর্ষে ভর্তি চলছে"></label>
+          <label class="block"><span class="field-label">বিস্তারিত</span><textarea name="details" rows="3" maxlength="1000" class="field"></textarea></label>
+          <label class="block"><span class="field-label">সময়সূচি</span>
+            <textarea name="dates" data-type="pairs" rows="4" class="field" placeholder="আবেদন শুরু | ০১ নভেম্বর ২০২৬&#10;আবেদনের শেষ তারিখ | ৩১ ডিসেম্বর ২০২৬"></textarea>
+            <span class="mt-1 block text-xs text-stone-400">প্রতি লাইনে: বিষয় | তারিখ</span></label>
+        </div>
+        <div class="flex justify-end border-t border-stone-100 pt-5"><button type="submit" class="btn btn-primary">সংরক্ষণ</button></div>
+      </form>
+
+      <form data-doc="about" id="about" class="card scroll-mt-6 space-y-5 p-6 sm:p-8">
+        <h2 class="text-lg font-semibold text-brand-900">পরিচিতি পাতা</h2>
+        <p class="-mt-3 text-sm text-stone-500">খালি রাখলে ওয়েবসাইটের ডিফল্ট লেখা দেখাবে।</p>
+        <div class="grid gap-5">
+          <label class="block"><span class="field-label">ইতিহাস</span><textarea name="history" rows="6" maxlength="5000" class="field"></textarea>
+            <span class="mt-1 block text-xs text-stone-400">অনুচ্ছেদের মাঝে একটি ফাঁকা লাইন দিন।</span></label>
+          <label class="block"><span class="field-label">লক্ষ্য</span><textarea name="mission" rows="3" maxlength="1000" class="field"></textarea></label>
+          <label class="block"><span class="field-label">দূরদৃষ্টি</span><textarea name="vision" rows="3" maxlength="1000" class="field"></textarea></label>
+          <label class="block"><span class="field-label">শিক্ষাগত উদ্দেশ্য</span><textarea name="objectives" data-type="list" rows="5" class="field"></textarea>
+            <span class="mt-1 block text-xs text-stone-400">প্রতি লাইনে একটি।</span></label>
+          <label class="block"><span class="field-label">ক্যাম্পাস সুবিধা</span><textarea name="facilities" data-type="facilities" rows="4" class="field" placeholder="লাইব্রেরি | বিবরণ"></textarea>
+            <span class="mt-1 block text-xs text-stone-400">প্রতি লাইনে: নাম | বিবরণ। শুধু যাচাইকৃত সুবিধা দিন।</span></label>
+        </div>
+        <div class="flex justify-end border-t border-stone-100 pt-5"><button type="submit" class="btn btn-primary">সংরক্ষণ</button></div>
+      </form>
+
+      <form data-doc="general" id="upload" class="card scroll-mt-6 space-y-5 p-6 sm:p-8">
+        <h2 class="text-lg font-semibold text-brand-900">ফাইল ও ছবি আপলোড (Cloudinary)</h2>
+        <p class="-mt-3 text-sm text-stone-500">
+          ঐচ্ছিক। cloudinary.com-এ ফ্রি অ্যাকাউন্ট খুলে Settings → Upload থেকে একটি <strong>Unsigned</strong> upload preset তৈরি করুন।
+          এগুলো দিলে প্রতিটি ফর্মে "আপলোড" বাটন দেখাবে; না দিলে ফাইলের লিংক পেস্ট করতে হবে।
+        </p>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="block"><span class="field-label">Cloud name</span><input name="cloudinaryCloudName" maxlength="100" class="field"></label>
+          <label class="block"><span class="field-label">Unsigned upload preset</span><input name="cloudinaryUploadPreset" maxlength="100" class="field"></label>
+        </div>
+        <div class="flex justify-end border-t border-stone-100 pt-5"><button type="submit" class="btn btn-primary">সংরক্ষণ</button></div>
       </form>
     </main>
 
@@ -50,39 +108,67 @@
       import { db, doc, getDoc, setDoc, serverTimestamp } from '/assets/js/firebase/config.js';
       import { showAlert } from '/assets/js/components/alert.js';
 
-      const FIELDS = ['address', 'phone', 'email', 'officeHours', 'developerCredit', 'facebookUrl', 'youtubeUrl', 'mapEmbedUrl'];
-      const form = document.getElementById('settings-form');
-      const btn = document.getElementById('settings-save-btn');
-
       await initAdminPage('settings');
 
-      try {
-        const snap = await getDoc(doc(db, 'settings', 'general'));
-        if (snap.exists()) {
+      const forms = [...document.querySelectorAll('form[data-doc]')];
+      const docs = [...new Set(forms.map(f => f.dataset.doc))];
+
+      // Converters between textarea text and stored values
+      const toText = {
+        list: v => (Array.isArray(v) ? v.join('\n') : ''),
+        pairs: v => (Array.isArray(v) ? v.map(d => `${d.label} | ${d.date}`).join('\n') : ''),
+        facilities: v => (Array.isArray(v) ? v.map(d => `${d.title} | ${d.desc || ''}`).join('\n') : '')
+      };
+      const lines = t => t.split('\n').map(s => s.trim()).filter(Boolean);
+      const split = l => { const i = l.indexOf('|'); return i < 0 ? [l, ''] : [l.slice(0, i).trim(), l.slice(i + 1).trim()]; };
+      const fromText = {
+        list: t => lines(t),
+        pairs: t => lines(t).map(split).map(([label, date]) => ({ label, date })),
+        facilities: t => lines(t).map(split).map(([title, desc]) => ({ title, desc }))
+      };
+
+      for (const name of docs) {
+        try {
+          const snap = await getDoc(doc(db, 'settings', name));
+          if (!snap.exists()) continue;
           const data = snap.data();
-          FIELDS.forEach(f => { if (data[f]) form.elements[f].value = data[f]; });
+          forms.filter(f => f.dataset.doc === name).forEach(form => {
+            [...form.elements].forEach(el => {
+              if (!el.name || !(el.name in data)) return;
+              if (el.type === 'checkbox') el.checked = Boolean(data[el.name]);
+              else if (el.dataset.type) el.value = toText[el.dataset.type](data[el.name]);
+              else el.value = data[el.name] ?? '';
+            });
+          });
+        } catch (e) {
+          showAlert({ type: 'error', message: 'সেটিংস লোড করা যায়নি: ' + e.message });
         }
-      } catch (e) {
-        showAlert({ type: 'error', message: 'সেটিংস লোড করা যায়নি: ' + e.message });
       }
 
-      form.addEventListener('submit', async (e) => {
+      forms.forEach(form => form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!form.reportValidity()) return;
+        const btn = form.querySelector('button[type="submit"]');
         const data = { updatedAt: serverTimestamp() };
-        FIELDS.forEach(f => { data[f] = form.elements[f].value.trim(); });
+        [...form.elements].forEach(el => {
+          if (!el.name) return;
+          if (el.type === 'checkbox') data[el.name] = el.checked;
+          else if (el.dataset.type) data[el.name] = fromText[el.dataset.type](el.value);
+          else data[el.name] = el.value.trim();
+        });
 
         btn.disabled = true;
         btn.textContent = 'সংরক্ষণ হচ্ছে...';
         try {
-          await setDoc(doc(db, 'settings', 'general'), data, { merge: true });
-          showAlert({ type: 'success', message: 'সেটিংস সংরক্ষিত হয়েছে।' });
+          await setDoc(doc(db, 'settings', form.dataset.doc), data, { merge: true });
+          showAlert({ type: 'success', message: 'সংরক্ষিত হয়েছে।' });
         } catch (err) {
-          showAlert({ type: 'error', message: 'সংরক্ষণ ব্যর্থ হয়েছে: ' + err.message });
+          showAlert({ type: 'error', message: 'সংরক্ষণ ব্যর্থ: ' + err.message });
         } finally {
           btn.disabled = false;
-          btn.textContent = 'সংরক্ষণ করুন';
+          btn.textContent = 'সংরক্ষণ';
         }
-      });
+      }));
     </script>
   </body>
 </html>

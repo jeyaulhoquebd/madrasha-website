@@ -3,29 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ভর্তি আবেদন ব্যবস্থাপনা - প্রশাসনিক পোর্টাল</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <title>ভর্তি আবেদন — প্রশাসনিক প্যানেল</title>
+    <link rel="icon" href="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/output.css">
   </head>
   <body class="flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot"></div>
 
-    <main class="mx-auto w-full max-w-6xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-      <div class="card p-6">
-        <h1 class="text-xl sm:text-2xl font-bold text-brand-900">ভর্তি আবেদন তালিকা</h1>
-        <p class="text-xs sm:text-sm text-stone-500 mt-1">অনলাইনে জমা হওয়া শিক্ষার্থীদের আবেদনের তথ্য ও অবস্থা</p>
-      </div>
-
-      <div class="card p-6">
-        <p class="text-xs text-stone-500 text-center py-8">বর্তমানে কোনো নতুন ভর্তি আবেদন জমা নেই।</p>
-      </div>
-    </main>
+    <main id="crud-root" class="mx-auto w-full max-w-6xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8"></main>
 
     <script type="module">
       import { initAdminPage } from '/assets/js/admin/adminLayout.js';
-      initAdminPage('admissions');
+      import { mountCrud } from '/assets/js/admin/crud.js';
+      import { COLLECTIONS } from '/assets/js/admin/collections.js';
+
+      await initAdminPage('admissions');
+      mountCrud(COLLECTIONS.admissions);
     </script>
   </body>
 </html>
