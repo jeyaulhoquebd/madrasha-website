@@ -3,12 +3,12 @@
  * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
  *
  * Every admin page calls initAdminPage(key). The page body stays hidden until
- * Firebase Auth confirms a signed-in user who also has a document in
- * admins/{uid}. Everyone else is sent to /admin/login.html.
+ * Firebase Auth confirms a signed-in administrator (ADMIN_UIDS in
+ * firebase/config.js, or a document at admins/{uid}). Everyone else is sent to /admin/login.html.
  * (Real data protection is enforced by firestore.rules; this guard is UX.)
  */
 
-import { auth, db, doc, getDoc, onAuthStateChanged, signOut } from '../firebase/config.js';
+import { auth, isAdminUser, onAuthStateChanged, signOut } from '../firebase/config.js';
 import { SITE } from '../site.js';
 
 const NAV = [
@@ -74,13 +74,7 @@ export function initAdminPage(activeNav = 'dashboard') {
     onAuthStateChanged(auth, async (user) => {
       if (!user) return goLogin();
 
-      try {
-        const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-        if (!adminDoc.exists()) {
-          await signOut(auth);
-          return goLogin('forbidden');
-        }
-      } catch (e) {
+      if (!(await isAdminUser(user))) {
         await signOut(auth);
         return goLogin('forbidden');
       }
