@@ -1,72 +1,78 @@
 /**
  * Firebase Modular Web SDK (Pinned v10.14.1)
  * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
- * Clean ES Modules, Zero Compat SDK
+ *
+ * HOW TO CONNECT:
+ * Firebase Console → Project settings → Your apps → Web app → copy the config
+ * object and paste the values below. Until real values are provided, the site
+ * runs in "standby" mode: Firebase is NOT initialised, no network requests are
+ * sent to Google, and every page shows its graceful empty state instead of
+ * console errors.
  */
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { 
-  getAuth, 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  signOut 
-} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  serverTimestamp 
-} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-
-// Configuration: loaded dynamically or from environment
 export const firebaseConfig = {
-  apiKey: "AIzaSyMadrasaPlaceholderKey-OfficialWeb",
-  authDomain: "khagrachhari-baitush-sharaf.firebaseapp.com",
-  projectId: "khagrachhari-baitush-sharaf",
-  storageBucket: "khagrachhari-baitush-sharaf.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+  apiKey: '',
+  authDomain: '',
+  projectId: '',
+  storageBucket: '',
+  messagingSenderId: '',
+  appId: ''
 };
 
+/** True only when real credentials have been filled in above. */
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId &&
+  !/placeholder|your[-_]?/i.test(firebaseConfig.apiKey + firebaseConfig.projectId)
+);
+
+const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
+const notReady = () => { throw new Error('Firebase is not configured'); };
+
+let appMod = {};
+let authMod = {};
+let fsMod = {};
 let appInstance = null;
 let authInstance = null;
 let dbInstance = null;
 
-try {
-  appInstance = initializeApp(firebaseConfig);
-  authInstance = getAuth(appInstance);
-  dbInstance = getFirestore(appInstance);
-} catch (error) {
-  console.warn('Firebase initialization in standby mode until production credentials are provided:', error.message);
+if (isFirebaseConfigured) {
+  try {
+    // SDK is only downloaded when real credentials exist (no Google requests in standby mode)
+    [appMod, authMod, fsMod] = await Promise.all([
+      import(`${SDK}/firebase-app.js`),
+      import(`${SDK}/firebase-auth.js`),
+      import(`${SDK}/firebase-firestore.js`)
+    ]);
+    appInstance = appMod.initializeApp(firebaseConfig);
+    authInstance = authMod.getAuth(appInstance);
+    dbInstance = fsMod.getFirestore(appInstance);
+  } catch (error) {
+    console.error('[Firebase] Initialisation failed:', error.message);
+  }
+} else {
+  console.info('[Firebase] Standby mode: add project credentials in /assets/js/firebase/config.js');
 }
 
 export const app = appInstance;
 export const auth = authInstance;
 export const db = dbInstance;
 
-export {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  limit,
-  serverTimestamp
-};
+export const onAuthStateChanged = authMod.onAuthStateChanged || ((_a, cb) => { cb(null); return () => {}; });
+export const signInWithEmailAndPassword = authMod.signInWithEmailAndPassword || notReady;
+export const signOut = authMod.signOut || (async () => {});
+
+export const collection = fsMod.collection || notReady;
+export const doc = fsMod.doc || notReady;
+export const getDocs = fsMod.getDocs || notReady;
+export const getDoc = fsMod.getDoc || notReady;
+export const addDoc = fsMod.addDoc || notReady;
+export const setDoc = fsMod.setDoc || notReady;
+export const updateDoc = fsMod.updateDoc || notReady;
+export const deleteDoc = fsMod.deleteDoc || notReady;
+export const query = fsMod.query || notReady;
+export const where = fsMod.where || notReady;
+export const orderBy = fsMod.orderBy || notReady;
+export const limit = fsMod.limit || notReady;
+export const serverTimestamp = fsMod.serverTimestamp || (() => new Date().toISOString());

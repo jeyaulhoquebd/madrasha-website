@@ -1,59 +1,99 @@
 /**
- * Admin Dashboard Layout Helper
+ * Admin layout + authentication guard
  * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ *
+ * Every admin page calls initAdminPage(key). The page body stays hidden until
+ * Firebase Auth confirms a signed-in user who also has a document in
+ * admins/{uid}. Everyone else is sent to /admin/login.html.
+ * (Real data protection is enforced by firestore.rules; this guard is UX.)
  */
 
-export function renderAdminHeader(activeNav = 'dashboard') {
-  const navItems = [
-    { key: 'dashboard', label: 'ড্যাশবোর্ড', url: '/admin/index.html' },
-    { key: 'notices', label: 'নোটিশ ব্যবস্থাপনা', url: '/admin/notices.html' },
-    { key: 'teachers', label: 'শিক্ষকবৃন্দ', url: '/admin/teachers.html' },
-    { key: 'staff', label: 'কর্মচারীবৃন্দ', url: '/admin/staff.html' },
-    { key: 'departments', label: 'বিভাগসমূহ', url: '/admin/departments.html' },
-    { key: 'admissions', label: 'ভর্তি আবেদন', url: '/admin/admissions.html' },
-    { key: 'results', label: 'ফলাফল', url: '/admin/results.html' },
-    { key: 'routines', label: 'রুটিন', url: '/admin/routines.html' },
-    { key: 'downloads', label: 'ডাউনলোড ফাইল', url: '/admin/downloads.html' },
-    { key: 'gallery', label: 'গ্যালারি', url: '/admin/gallery.html' },
-    { key: 'settings', label: 'সেটিংস', url: '/admin/settings.html' }
-  ];
+import { auth, db, doc, getDoc, onAuthStateChanged, signOut } from '../firebase/config.js';
+import { SITE } from '../site.js';
 
+const NAV = [
+  ['dashboard', 'ড্যাশবোর্ড', '/admin/index.html'],
+  ['notices', 'নোটিশ', '/admin/notices.html'],
+  ['teachers', 'শিক্ষক', '/admin/teachers.html'],
+  ['staff', 'কর্মচারী', '/admin/staff.html'],
+  ['departments', 'বিভাগ', '/admin/departments.html'],
+  ['admissions', 'ভর্তি আবেদন', '/admin/admissions.html'],
+  ['results', 'ফলাফল', '/admin/results.html'],
+  ['routines', 'রুটিন', '/admin/routines.html'],
+  ['downloads', 'ডাউনলোড', '/admin/downloads.html'],
+  ['gallery', 'গ্যালারি', '/admin/gallery.html'],
+  ['settings', 'সেটিংস', '/admin/settings.html']
+];
+
+export function renderAdminHeader(activeNav = 'dashboard', email = '') {
   return `
-    <header class="bg-[#072e10] text-white border-b-2 border-[#d4af37] sticky top-0 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex items-center space-x-3 rtl:space-x-reverse">
-            <span class="w-8 h-8 rounded-full bg-emerald-800 border border-amber-400 flex items-center justify-center font-bold text-amber-300 text-xs">
-              এডমিন
-            </span>
-            <div class="leading-tight">
-              <h2 class="text-sm sm:text-base font-bold text-white">প্রশাসনিক নিয়ন্ত্রণ কেন্দ্র</h2>
-              <p class="text-[10px] text-amber-300">বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল মাদ্রাসা</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <a href="/" target="_blank" class="text-xs text-emerald-200 hover:text-white flex items-center gap-1 bg-emerald-900/60 px-3 py-1.5 rounded border border-emerald-700/60 transition">
-              <span>ওয়েবসাইট দেখুন</span>
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            </a>
-            <button id="admin-logout-btn" class="text-xs bg-rose-700 hover:bg-rose-800 text-white font-semibold px-3 py-1.5 rounded transition">
-              লগআউট
-            </button>
-          </div>
+    <header class="border-b border-stone-200 bg-white">
+      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <a href="/admin/index.html" class="flex items-center gap-3">
+          <img src="${SITE.logoUrl}" alt="" class="h-9 w-9 rounded-full border border-stone-200 object-contain" />
+          <span class="leading-tight">
+            <span class="block text-sm font-semibold text-brand-900">প্রশাসনিক প্যানেল</span>
+            <span class="block text-[11px] text-stone-500">${SITE.shortName}</span>
+          </span>
+        </a>
+        <div class="flex items-center gap-2 text-sm">
+          ${email ? `<span class="hidden text-xs text-stone-500 md:inline">${email.replace(/[<>&"']/g, '')}</span>` : ''}
+          <a href="/" target="_blank" rel="noopener" class="btn btn-outline px-3 py-1.5 text-xs">ওয়েবসাইট</a>
+          <button id="admin-logout-btn" type="button" class="btn px-3 py-1.5 text-xs text-rose-700 hover:bg-rose-50">লগআউট</button>
         </div>
       </div>
-
-      <!-- Admin Secondary Subnav -->
-      <div class="bg-[#0B4619] border-t border-emerald-800/80 overflow-x-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 rtl:space-x-reverse py-1.5 text-xs font-medium whitespace-nowrap">
-          ${navItems.map(item => `
-            <a href="${item.url}" class="px-3 py-1.5 rounded transition ${activeNav === item.key ? 'bg-white text-[#072e10] font-bold shadow-xs' : 'text-emerald-100 hover:bg-emerald-800/60 hover:text-white'}">
-              ${item.label}
-            </a>
+      <nav class="border-t border-stone-100" aria-label="এডমিন মেনু">
+        <div class="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
+          ${NAV.map(([key, label, url]) => `
+            <a href="${url}" class="relative whitespace-nowrap px-3 py-3 text-sm transition ${
+              key === activeNav
+                ? 'font-semibold text-brand-800 after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-gold-500'
+                : 'text-stone-500 hover:text-brand-700'
+            }">${label}</a>
           `).join('')}
         </div>
-      </div>
+      </nav>
     </header>
   `;
+}
+
+/**
+ * Renders the admin chrome and enforces authentication.
+ * @returns {Promise<import('firebase/auth').User>} resolves with the signed-in admin
+ */
+export function initAdminPage(activeNav = 'dashboard') {
+  document.body.classList.add('invisible');
+
+  return new Promise((resolve) => {
+    const goLogin = (reason = '') => {
+      window.location.replace('/admin/login.html' + (reason ? `?reason=${reason}` : ''));
+    };
+
+    if (!auth) return goLogin('standby');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return goLogin();
+
+      try {
+        const adminDoc = await getDoc(doc(db, 'admins', user.uid));
+        if (!adminDoc.exists()) {
+          await signOut(auth);
+          return goLogin('forbidden');
+        }
+      } catch (e) {
+        await signOut(auth);
+        return goLogin('forbidden');
+      }
+
+      const slot = document.getElementById('admin-header-slot');
+      if (slot) slot.innerHTML = renderAdminHeader(activeNav, user.email || '');
+      document.getElementById('admin-logout-btn')?.addEventListener('click', async () => {
+        await signOut(auth);
+        window.location.replace('/admin/login.html');
+      });
+
+      document.body.classList.remove('invisible');
+      resolve(user);
+    });
+  });
 }

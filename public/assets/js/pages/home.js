@@ -1,264 +1,123 @@
 /**
- * Homepage Dynamic Data Controller
+ * Homepage Controller
  * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
- * Real Cloud Firestore integration with strict verified content discipline
+ * Loads verified, published content from Cloud Firestore.
  */
 
-import { 
-  db, 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit 
-} from '../firebase/config.js';
+import { db, collection, doc, getDocs, getDoc, query, where, orderBy, limit } from '../firebase/config.js';
 import { formatBengaliDate } from '../utils/date.js';
-import { updateLayoutSettings } from '../components/layout.js';
+import { esc, safeUrl } from '../utils/escape.js';
+import { getGeneralSettings } from '../components/layout.js';
 import { renderNoticeTicker } from '../components/noticeTicker.js';
+import { SITE } from '../site.js';
 
-export const OFFICIAL_HERO_IMAGE_URL = "https://res.cloudinary.com/edsn06rr/image/upload/v1793898407/a1a9d6b9-0f63-4ca4-bb47-8a8fc27dd326.png";
-export const OFFICIAL_LOGO_URL = "https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg";
+export const OFFICIAL_HERO_IMAGE_URL = SITE.heroUrl;
+export const OFFICIAL_LOGO_URL = SITE.logoUrl;
 
-/**
- * Loads institutional settings from Firestore
- */
-export async function loadInstitutionalSettings() {
-  if (!db) return null;
-  try {
-    const settingsDoc = await getDoc(doc(db, 'settings', 'general'));
-    if (settingsDoc.exists()) {
-      const data = settingsDoc.data();
-      updateLayoutSettings(data);
-      return data;
-    }
-  } catch (error) {
-    console.warn('[Firestore] Settings load fallback:', error.message);
-  }
-  return null;
+/** Kept for backwards compatibility with other page controllers. */
+export function loadInstitutionalSettings() {
+  return getGeneralSettings();
 }
 
-/**
- * Loads published notices from Firestore for the home notice board & ticker
- */
+function noticeEmpty(message) {
+  return `<p class="px-5 py-10 text-center text-sm leading-relaxed text-stone-500">${message}</p>`;
+}
+
 export async function loadRecentNotices() {
-  const noticesContainer = document.getElementById('home-notices-container');
+  const container = document.getElementById('home-notices-container');
   const tickerSlot = document.getElementById('notice-ticker-slot');
 
   if (!db) {
-    showNoticeEmptyState(noticesContainer, 'ফায়ারবেস ডেটাবেজ সংযোগ অপেক্ষমান। প্রশাসনিক নোটিশ যুক্ত করা হলে সরাসরি দৃশ্যমান হবে।');
+    if (container) container.innerHTML = noticeEmpty('এখনও কোনো নোটিশ প্রকাশিত হয়নি।');
     return [];
   }
 
   try {
-    const q = query(
+    const snapshot = await getDocs(query(
       collection(db, 'notices'),
       where('isPublished', '==', true),
       orderBy('publishedAt', 'desc'),
       limit(5)
-    );
+    ));
+    const notices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    const snapshot = await getDocs(q);
-    const notices = [];
-    snapshot.forEach(docSnap => {
-      notices.push({ id: docSnap.id, ...docSnap.data() });
-    });
-
-    if (notices.length > 0) {
-      // Render Notice Board list
-      if (noticesContainer) {
-        noticesContainer.innerHTML = notices.map(notice => `
-          <div class="p-3.5 rounded-lg border border-stone-200 bg-stone-50/60 hover:bg-emerald-50/50 hover:border-emerald-300 transition group flex items-start justify-between gap-3">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[#0B4619] text-amber-300">
-                  ${notice.category || 'সাধারণ'}
-                </span>
-                <span class="text-[11px] text-stone-500">
-                  ${formatBengaliDate(notice.publishedAt)}
-                </span>
-              </div>
-              <h4 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-[#0B4619] leading-snug">
-                <a href="/notice-details.html?id=${notice.id}">
-                  ${notice.title}
-                </a>
-              </h4>
+    if (container) {
+      container.innerHTML = notices.length === 0
+        ? noticeEmpty('বর্তমানে কোনো সক্রিয় নোটিশ নেই।')
+        : notices.map(n => `
+          <a href="/notice-details.html?id=${encodeURIComponent(n.id)}" class="group block px-5 py-4 transition hover:bg-stone-50">
+            <div class="flex items-center gap-2 text-xs text-stone-500">
+              <span class="tag">${esc(n.category || 'সাধারণ')}</span>
+              <span>${formatBengaliDate(n.publishedAt)}</span>
             </div>
-            <a href="/notice-details.html?id=${notice.id}" class="flex-shrink-0 p-1.5 text-stone-400 group-hover:text-[#0B4619] transition" title="বিস্তারিত দেখুন">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </a>
-          </div>
+            <p class="mt-1.5 text-sm font-medium leading-relaxed text-stone-800 group-hover:text-brand-700">${esc(n.title)}</p>
+          </a>
         `).join('');
-      }
-
-      // Update Ticker
-      if (tickerSlot) {
-        tickerSlot.innerHTML = renderNoticeTicker(notices);
-      }
-
-      return notices;
-    } else {
-      showNoticeEmptyState(noticesContainer, 'বর্তমানে কোনো সক্রিয় নোটিশ নেই। কর্তৃপক্ষ কর্তৃক নতুন বিজ্ঞপ্তি প্রকাশের পর এখানে প্রদর্শিত হবে।');
-      return [];
     }
+
+    if (tickerSlot) tickerSlot.innerHTML = renderNoticeTicker(notices);
+    return notices;
   } catch (error) {
-    console.warn('[Firestore] Notice board load notice:', error.message);
-    showNoticeEmptyState(noticesContainer, 'বর্তমানে নতুন কোনো নোটিশ পাওয়া যায়নি। সকল নোটিশের জন্য নোটিশ বোর্ডে যান।');
+    console.warn('[Firestore] notices:', error.message);
+    if (container) container.innerHTML = noticeEmpty('নোটিশ লোড করা যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।');
     return [];
   }
 }
 
-function showNoticeEmptyState(container, message) {
-  if (!container) return;
-  container.innerHTML = `
-    <div class="p-6 text-center text-stone-500 space-y-2">
-      <svg class="w-10 h-10 text-stone-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-      <p class="text-xs leading-relaxed">${message}</p>
-      <a href="/notices.html" class="inline-block text-xs font-semibold text-[#0B4619] hover:underline">
-        সকল নোটিশ আর্কাইভ দেখুন →
-      </a>
-    </div>
-  `;
-}
-
-/**
- * Loads Principal's message from Firestore
- */
 export async function loadPrincipalMessage() {
+  const section = document.getElementById('principal-section');
   const container = document.getElementById('principal-message-container');
-  if (!container) return;
-
-  if (!db) {
-    container.innerHTML = `
-      <div class="p-6 bg-stone-50 rounded-xl border border-dashed border-stone-200 text-center space-y-2">
-        <p class="text-xs sm:text-sm text-stone-600 font-medium">
-          অধ্যক্ষ মহোদয়ের দিকনির্দেশনামূলক বাণী ও ফটো প্রশাসনিক যাচাইকরণ ও ফায়ারবেস ক্লাউড সংরক্ষণের পর সরাসরি এখানে আনুষ্ঠানিকভাবে প্রদর্শিত হবে।
-        </p>
-        <span class="inline-block text-[11px] text-amber-700 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
-          প্রশাসনিক স্থিতি: বাণী অনুমোদনাধীন
-        </span>
-      </div>
-    `;
-    return;
-  }
+  if (!db || !container) return;
 
   try {
-    const docSnap = await getDoc(doc(db, 'settings', 'principal'));
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      container.innerHTML = `
-        <div class="flex flex-col sm:flex-row gap-6 items-start">
-          <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-stone-100 overflow-hidden shadow-md border-2 border-[#d4af37] flex-shrink-0 mx-auto sm:mx-0">
-            <img 
-              src="${data.photoUrl || OFFICIAL_LOGO_URL}" 
-              alt="${data.name || 'অধ্যক্ষ'}" 
-              class="w-full h-full object-cover"
-            />
-          </div>
-          <div class="space-y-2.5 text-center sm:text-left flex-1">
-            <div>
-              <h4 class="text-base sm:text-lg font-bold text-[#072e10]">${data.name || 'অধ্যক্ষ মহোদয়'}</h4>
-              <p class="text-xs font-semibold text-[#0B4619]">${data.designation || 'অধ্যক্ষ, খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল মাদ্রাসা'}</p>
-            </div>
-            <p class="text-xs sm:text-sm text-stone-600 leading-relaxed italic">
-              "${data.message || 'বিসমিল্লাহির রাহমানির রাহিম। দ্বীনি শিক্ষা ও আধুনিক জ্ঞানের সমন্বয়ে আমাদের মাদ্রাসা আদর্শ মানুষ গড়ার মহান ব্রতে এগিয়ে চলছে।'}"
-            </p>
-            <div class="pt-2">
-              <a href="/administration.html" class="inline-flex items-center text-xs font-bold text-[#0B4619] hover:underline">
-                সম্পূর্ণ প্রাতিষ্ঠানিক বার্তা পড়ুন →
-              </a>
-            </div>
-          </div>
+    const snap = await getDoc(doc(db, 'settings', 'principal'));
+    if (!snap.exists() || !snap.data().message) return;
+    const data = snap.data();
+
+    container.innerHTML = `
+      <figure class="card grid items-center gap-8 p-8 sm:p-10 md:grid-cols-[auto_1fr]">
+        <img src="${safeUrl(data.photoUrl, SITE.logoUrl)}" alt="${esc(data.name || 'অধ্যক্ষ')}"
+          class="mx-auto h-28 w-28 rounded-full border border-stone-200 object-cover" loading="lazy" />
+        <div>
+          <span class="eyebrow">অধ্যক্ষের বাণী</span>
+          <blockquote class="mt-4 text-[15px] leading-8 text-stone-700">“${esc(data.message)}”</blockquote>
+          <figcaption class="mt-5 text-sm">
+            <span class="font-semibold text-brand-900">${esc(data.name || 'অধ্যক্ষ')}</span>
+            <span class="text-stone-500"> · ${esc(data.designation || 'অধ্যক্ষ')}</span>
+          </figcaption>
         </div>
-      `;
-    } else {
-      container.innerHTML = `
-        <div class="p-6 bg-stone-50 rounded-xl border border-dashed border-stone-200 text-center space-y-2">
-          <p class="text-xs sm:text-sm text-stone-600 font-medium">
-            অধ্যক্ষ মহোদয়ের দিকনির্দেশনামূলক বাণী ও ফটো প্রশাসনিক যাচাইকরণ ও ফায়ারবেস ক্লাউড সংরক্ষণের পর সরাসরি এখানে আনুষ্ঠানিকভাবে প্রদর্শিত হবে।
-          </p>
-          <span class="inline-block text-[11px] text-amber-700 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
-            প্রশাসনিক স্থিতি: বাণী অনুমোদনাধীন
-          </span>
-        </div>
-      `;
-    }
+      </figure>
+    `;
+    section?.classList.remove('hidden');
   } catch (error) {
-    console.warn('[Firestore] Principal message notice:', error.message);
+    console.warn('[Firestore] principal message:', error.message);
   }
 }
 
-/**
- * Loads Teacher Highlights from Firestore
- */
 export async function loadTeacherHighlights() {
+  const section = document.getElementById('teachers-section');
   const container = document.getElementById('home-teachers-container');
-  if (!container) return;
-
-  if (!db) {
-    container.innerHTML = `
-      <div class="col-span-full p-8 text-center bg-stone-50 rounded-xl border border-dashed border-stone-300 space-y-2">
-        <svg class="w-10 h-10 text-stone-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-        <p class="text-xs sm:text-sm text-stone-600 font-medium">শিক্ষক মণ্ডলীর বিস্তারিত প্রোফাইল ডাটাবেজ হালনাগাদাধীন</p>
-        <p class="text-xs text-stone-400">অনুমোদিত ও যাচাইকৃত শিক্ষক তালিকা অ্যাডমিন প্যানেল থেকে সংরক্ষণের পর প্রদর্শিত হবে।</p>
-        <div class="pt-2">
-          <a href="/teachers.html" class="inline-block px-4 py-2 bg-[#0B4619] text-white rounded text-xs font-semibold hover:bg-[#072e10] transition">
-            সকল শিক্ষক বিভাগ দেখুন
-          </a>
-        </div>
-      </div>
-    `;
-    return;
-  }
+  if (!db || !container) return;
 
   try {
-    const q = query(collection(db, 'teachers'), limit(4));
-    const snapshot = await getDocs(q);
-    const teachers = [];
-    snapshot.forEach(docSnap => {
-      teachers.push({ id: docSnap.id, ...docSnap.data() });
-    });
+    const snapshot = await getDocs(query(collection(db, 'teachers'), orderBy('displayOrder', 'asc'), limit(4)));
+    const teachers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (teachers.length === 0) return;
 
-    if (teachers.length > 0) {
-      container.innerHTML = teachers.map(t => `
-        <div class="bg-white rounded-xl border border-stone-200 p-5 text-center shadow-2xs hover:shadow-md transition group">
-          <div class="w-20 h-20 mx-auto rounded-full bg-stone-100 overflow-hidden ring-2 ring-[#d4af37]/60 mb-3">
-            <img src="${t.photoUrl || OFFICIAL_LOGO_URL}" alt="${t.name}" class="w-full h-full object-cover">
-          </div>
-          <h4 class="text-sm font-bold text-slate-800 group-hover:text-[#0B4619]">${t.name}</h4>
-          <p class="text-xs text-stone-500 mt-0.5">${t.designation || 'সহকারী শিক্ষক'}</p>
-          <span class="inline-block mt-2 px-2.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-[#0B4619] border border-emerald-200">
-            ${t.department || 'সাধারণ বিভাগ'}
-          </span>
-        </div>
-      `).join('');
-    } else {
-      container.innerHTML = `
-        <div class="col-span-full p-8 text-center bg-stone-50 rounded-xl border border-dashed border-stone-300 space-y-2">
-          <svg class="w-10 h-10 text-stone-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <p class="text-xs sm:text-sm text-stone-600 font-medium">শিক্ষক মণ্ডলীর বিস্তারিত প্রোফাইল ডাটাবেজ হালনাগাদাধীন</p>
-          <p class="text-xs text-stone-400">অনুমোদিত ও যাচাইকৃত শিক্ষক তালিকা অ্যাডমিন প্যানেল থেকে সংরক্ষণের পর প্রদর্শিত হবে।</p>
-          <div class="pt-2">
-            <a href="/teachers.html" class="inline-block px-4 py-2 bg-[#0B4619] text-white rounded text-xs font-semibold hover:bg-[#072e10] transition">
-              সকল শিক্ষক বিভাগ দেখুন
-            </a>
-          </div>
-        </div>
-      `;
-    }
+    container.innerHTML = teachers.map(t => `
+      <div class="card p-6 text-center">
+        <img src="${safeUrl(t.photoUrl, SITE.logoUrl)}" alt="${esc(t.name)}" class="mx-auto h-20 w-20 rounded-full border border-stone-200 object-cover" loading="lazy" />
+        <h3 class="mt-4 font-semibold text-stone-800">${esc(t.name)}</h3>
+        <p class="mt-1 text-sm text-brand-700">${esc(t.designation || 'শিক্ষক')}</p>
+        ${t.department ? `<p class="mt-1 text-xs text-stone-500">${esc(t.department)}</p>` : ''}
+      </div>
+    `).join('');
+    section?.classList.remove('hidden');
   } catch (error) {
-    console.warn('[Firestore] Teachers highlight notice:', error.message);
+    console.warn('[Firestore] teachers:', error.message);
   }
 }
 
-/**
- * Initializes all Homepage dynamic integrations
- */
 export async function initHomePage() {
-  await loadInstitutionalSettings();
-  await loadRecentNotices();
-  await loadPrincipalMessage();
-  await loadTeacherHighlights();
+  await Promise.all([loadRecentNotices(), loadPrincipalMessage(), loadTeacherHighlights()]);
 }
