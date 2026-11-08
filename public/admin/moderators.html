@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/output.css">
+    <link rel="stylesheet" href="/assets/css/output.css?v=20261108">
   </head>
   <body class="invisible flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot"></div>
@@ -64,11 +64,11 @@
     </main>
 
     <script type="module">
-      import { initAdminPage, PERMISSION_SECTIONS, getCurrentRole } from '/assets/js/admin/adminLayout.js';
-      import { auth, db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, serverTimestamp, createAccountForOther, sendPasswordResetEmail } from '/assets/js/firebase/config.js';
-      import { showAlert } from '/assets/js/components/alert.js';
-      import { esc } from '/assets/js/utils/escape.js';
-      import { formatBengaliDate, toBengaliNumber } from '/assets/js/utils/date.js';
+      import { initAdminPage, PERMISSION_SECTIONS, getCurrentRole } from '/assets/app/admin/adminLayout.js';
+      import { auth, db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, serverTimestamp, createAccountForOther, sendPasswordResetEmail } from '/assets/app/firebase/config.js';
+      import { showAlert } from '/assets/app/components/alert.js';
+      import { esc } from '/assets/app/utils/escape.js';
+      import { formatBengaliDate, toBengaliNumber } from '/assets/app/utils/date.js';
 
       await initAdminPage('moderators');
       if (getCurrentRole()?.role !== 'admin') location.replace('/admin/?denied=1');

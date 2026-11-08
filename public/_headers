@@ -15,5 +15,13 @@
 /api/*
   Cache-Control: no-store
 
-/assets/*
+# Scripts & styles: always check for a newer version (cheap 304 when unchanged),
+# so every deploy reaches visitors immediately.
+/assets/app/*
+  Cache-Control: no-cache
+
+/assets/css/*
+  Cache-Control: no-cache
+
+/assets/images/*
   Cache-Control: public, max-age=604800

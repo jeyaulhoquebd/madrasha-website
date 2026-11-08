@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/output.css">
+    <link rel="stylesheet" href="/assets/css/output.css?v=20261108">
   </head>
   <body class="invisible flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot" class="no-print"></div>
@@ -25,11 +25,11 @@
     <style>@media print { #admin-header-slot, .no-print { display: none !important } body { background: #fff } .card { border: 0 } }</style>
 
     <script type="module">
-      import { initAdminPage } from '/assets/js/admin/adminLayout.js';
-      import { db, doc, getDoc } from '/assets/js/firebase/config.js';
-      import { esc } from '/assets/js/utils/escape.js';
-      import { formatBengaliDate } from '/assets/js/utils/date.js';
-      import { SITE } from '/assets/js/site.js';
+      import { initAdminPage } from '/assets/app/admin/adminLayout.js';
+      import { db, doc, getDoc } from '/assets/app/firebase/config.js';
+      import { esc } from '/assets/app/utils/escape.js';
+      import { formatBengaliDate } from '/assets/app/utils/date.js';
+      import { SITE } from '/assets/app/site.js';
 
       await initAdminPage('admissions');
       const box = document.getElementById('application');

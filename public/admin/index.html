@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/output.css">
+    <link rel="stylesheet" href="/assets/css/output.css?v=20261108">
   </head>
   <body class="invisible flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot"></div>
@@ -46,11 +46,11 @@
     </main>
 
     <script type="module">
-      import { initAdminPage, can, getCurrentRole } from '/assets/js/admin/adminLayout.js';
-      import { showAlert } from '/assets/js/components/alert.js';
-      import { db, collection, getDocs, getCountFromServer } from '/assets/js/firebase/config.js';
-      import { esc } from '/assets/js/utils/escape.js';
-      import { toBengaliNumber, formatBengaliDate, sortByDateDesc } from '/assets/js/utils/date.js';
+      import { initAdminPage, can, getCurrentRole } from '/assets/app/admin/adminLayout.js';
+      import { showAlert } from '/assets/app/components/alert.js';
+      import { db, collection, getDocs, getCountFromServer } from '/assets/app/firebase/config.js';
+      import { esc } from '/assets/app/utils/escape.js';
+      import { toBengaliNumber, formatBengaliDate, sortByDateDesc } from '/assets/app/utils/date.js';
 
       const user = await initAdminPage('dashboard');
       const role = getCurrentRole();
