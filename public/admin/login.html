@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/output.css">
+    <link rel="stylesheet" href="/assets/css/output.css?v=20261108">
   </head>
   <body class="flex min-h-screen items-center justify-center bg-ivory p-4">
     <div class="w-full max-w-sm">
@@ -35,9 +35,9 @@
     </div>
 
     <script type="module">
-      import { auth, getStaffRole, signInWithEmailAndPassword, signOut } from '/assets/js/firebase/config.js';
-      import { showAlert } from '/assets/js/components/alert.js';
-      import { mountTurnstile, verifyHuman } from '/assets/js/components/turnstile.js';
+      import { auth, getStaffRole, signInWithEmailAndPassword, signOut } from '/assets/app/firebase/config.js';
+      import { showAlert } from '/assets/app/components/alert.js';
+      import { mountTurnstile, verifyHuman } from '/assets/app/components/turnstile.js';
       const captcha = mountTurnstile(document.getElementById('admin-turnstile'), { action: 'admin-login' });
 
       const form = document.getElementById('admin-login-form');

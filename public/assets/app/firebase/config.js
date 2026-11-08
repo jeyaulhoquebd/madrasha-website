@@ -61,7 +61,7 @@ if (isFirebaseConfigured) {
     console.error('[Firebase] Initialisation failed:', error.message);
   }
 } else {
-  console.info('[Firebase] Standby mode: add project credentials in /assets/js/firebase/config.js');
+  console.info('[Firebase] Standby mode: add project credentials in /assets/app/firebase/config.js');
 }
 
 export const app = appInstance;

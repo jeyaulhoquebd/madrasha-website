@@ -84,7 +84,7 @@
 ## 🎨 ডিজাইন সিস্টেম
 মিনিমাল ও পরিচ্ছন্ন ইসলামী থিম — গাঢ় সবুজ (`brand-*`), পরিমিত সোনালি অ্যাকসেন্ট (`gold-*`) ও হালকা আইভরি ব্যাকগ্রাউন্ড।
 সকল রং ও কম্পোনেন্ট ক্লাস (`btn`, `card`, `field`, `chip`, `eyebrow` ইত্যাদি) `styles/input.css` ফাইলে সংজ্ঞায়িত।
-প্রতিষ্ঠানের যাচাইকৃত তথ্য (নাম, EIIN, স্থাপিত সাল, ঠিকানা, লোগো) এক জায়গায়: `public/assets/js/site.js`।
+প্রতিষ্ঠানের যাচাইকৃত তথ্য (নাম, EIIN, স্থাপিত সাল, ঠিকানা, লোগো) এক জায়গায়: `public/assets/app/site.js`।
 
 ---
 
@@ -100,18 +100,18 @@ npm run dev         # http://localhost:3000
 
 ## 🔥 ফায়ারবেস সংযোগ (Firebase Setup)
 
-1. Firebase প্রজেক্ট: **`kbsjafm`** — কনফিগারেশন `public/assets/js/firebase/config.js` ফাইলে যুক্ত করা আছে।
+1. Firebase প্রজেক্ট: **`kbsjafm`** — কনফিগারেশন `public/assets/app/firebase/config.js` ফাইলে যুক্ত করা আছে।
 2. Authentication → Settings → **Authorized domains**-এ ওয়েবসাইটের ডোমেইন (যেমন `xxxx.pages.dev`) যোগ করুন, নাহলে এডমিন লগইন কাজ করবে না।
    কনফিগারেশন খালি থাকলে সাইট "স্ট্যান্ডবাই মোডে" চলে — গুগলে কোনো রিকোয়েস্ট যায় না, কনসোলে কোনো এরর আসে না, এবং প্রতিটি পাতায় মার্জিত খালি অবস্থা দেখায়।
 3. **Authentication → Email/Password** চালু করে এডমিন ব্যবহারকারী তৈরি করুন।
 4. প্রধান এডমিন: UID `8ALeLYl29me8iozWeTVFoe0FIJ63` — এটি `firestore.rules` (`isAdmin()`) এবং
-   `public/assets/js/firebase/config.js` (`ADMIN_UIDS`) দুই জায়গাতেই যুক্ত আছে।
+   `public/assets/app/firebase/config.js` (`ADMIN_UIDS`) দুই জায়গাতেই যুক্ত আছে।
    নতুন এডমিন যোগ করতে দুই জায়গায় UID যোগ করুন, অথবা Console থেকে `admins/{UID}` ডকুমেন্ট তৈরি করুন।
    নিরাপত্তার কারণে ওয়েবসাইট থেকে `admins` কালেকশনে লেখা সম্পূর্ণ নিষিদ্ধ।
 5. নিয়ম ডেপ্লয় করুন: Firebase Console → Firestore → Rules-এ `firestore.rules` ফাইলের লেখা বসিয়ে Publish করুন (অথবা `firebase deploy --only firestore:rules`)। কোনো কম্পোজিট ইনডেক্সের প্রয়োজন নেই।
 6. ব্রাউজারে `আপনার-ডোমেইন/admin` লিখে এডমিন প্যানেলে যান (পাবলিক সাইটে কোথাও এডমিনের লিংক নেই; লগইন ছাড়া এডমিন পাতা দেখা যায় না)। লগইন করে **সেটিংস** পাতায় ফোন, ইমেইল, অধ্যক্ষের বাণী, ভর্তির তথ্য ইত্যাদি দিন।
 7. এডমিন প্যানেল থেকে নোটিশ, শিক্ষক, কর্মচারী, পরিচালনা পর্ষদ, বিভাগ, ফলাফল, রুটিন, ক্যালেন্ডার, ডাউনলোড ও গ্যালারি যোগ/সম্পাদনা/মুছে ফেলা যায়; ভর্তি আবেদন ও বার্তা দেখা ও ব্যবস্থাপনা করা যায়।
-8. ছবি আপলোড: সব এডমিন ফর্মে "ছবি আপলোড" বাটন আছে; ছবি **Cloudinary**-তে (cloud `ouertwph`, unsigned preset `kbsjafm1182026`) সংরক্ষিত হয়। কনফিগারেশন: `public/assets/js/utils/cloudinary.js`। গ্যালারিতে একসাথে অনেক ছবি আপলোড করা যায়।
+8. ছবি আপলোড: সব এডমিন ফর্মে "ছবি আপলোড" বাটন আছে; ছবি **Cloudinary**-তে (cloud `ouertwph`, unsigned preset `kbsjafm1182026`) সংরক্ষিত হয়। কনফিগারেশন: `public/assets/app/utils/cloudinary.js`। গ্যালারিতে একসাথে অনেক ছবি আপলোড করা যায়।
 9. ভিডিও আপলোড বন্ধ — গ্যালারিতে YouTube বা Facebook ভিডিওর লিংক দিন; ওয়েবসাইটে পপ-আপে চলবে।
 10. PDF আপলোড করলে Cloudinary → Settings → Security → "Allow delivery of PDF and ZIP files" চালু রাখুন।
 
@@ -146,7 +146,7 @@ npm run dev         # http://localhost:3000
 
 ## 🤖 Cloudflare Turnstile (মানব-যাচাই)
 - ভর্তি ফরম, যোগাযোগ ফরম, অভিভাবক লগইন/নিবন্ধন ও এডমিন লগইনে যুক্ত।
-- Site key: `public/assets/js/components/turnstile.js`
+- Site key: `public/assets/app/components/turnstile.js`
 - সার্ভার যাচাই: Cloudflare Pages Function `functions/api/verify-turnstile.js`
 - **Secret key কোডে নেই।** Cloudflare → Workers & Pages → প্রজেক্ট → Settings → Variables and Secrets → Add → Type: *Secret*, Name: `TURNSTILE_SECRET_KEY`, তারপর নতুন করে ডেপ্লয় করুন।
 - লোকাল ডেভেলপমেন্টে (localhost) যাচাই স্বয়ংক্রিয়ভাবে পাস হয়।
