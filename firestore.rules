@@ -17,6 +17,18 @@ service cloud.firestore {
       );
     }
 
+    // Moderator: an active record at moderators/{uid} created by an admin.
+    // can(section) = admin, or an active moderator who was given that section.
+    function can(section) {
+      let path = /databases/$(database)/documents/moderators/$(request.auth.uid);
+      return isAdmin() || (
+        isAuthenticated()
+        && exists(path)
+        && get(path).data.active == true
+        && section in get(path).data.get('permissions', [])
+      );
+    }
+
     function str(field, maxLen) {
       return request.resource.data[field] is string && request.resource.data[field].size() <= maxLen;
     }
@@ -37,27 +49,27 @@ service cloud.firestore {
     // ---------- Public website content (anyone reads, only admins write) ----------
     match /settings/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if can('settings');
     }
 
-    match /teachers/{id}       { allow read: if true; allow write: if isAdmin(); }
-    match /staff/{id}          { allow read: if true; allow write: if isAdmin(); }
-    match /administration/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /departments/{id}    { allow read: if true; allow write: if isAdmin(); }
-    match /routines/{id}       { allow read: if true; allow write: if isAdmin(); }
-    match /downloads/{id}      { allow read: if true; allow write: if isAdmin(); }
-    match /gallery/{id}        { allow read: if true; allow write: if isAdmin(); }
-    match /calendar/{id}       { allow read: if true; allow write: if isAdmin(); }
+    match /teachers/{id}       { allow read: if true; allow write: if can('teachers'); }
+    match /staff/{id}          { allow read: if true; allow write: if can('staff'); }
+    match /administration/{id} { allow read: if true; allow write: if can('administration'); }
+    match /departments/{id}    { allow read: if true; allow write: if can('departments'); }
+    match /routines/{id}       { allow read: if true; allow write: if can('routines'); }
+    match /downloads/{id}      { allow read: if true; allow write: if can('downloads'); }
+    match /gallery/{id}        { allow read: if true; allow write: if can('gallery'); }
+    match /calendar/{id}       { allow read: if true; allow write: if can('calendar'); }
 
     // Notices & results: the public sees only published documents
     match /notices/{id} {
-      allow read: if resource.data.isPublished == true || isAdmin();
-      allow write: if isAdmin();
+      allow read: if resource.data.isPublished == true || can('notices');
+      allow write: if can('notices');
     }
 
     match /results/{id} {
-      allow read: if resource.data.isPublished == true || isAdmin();
-      allow write: if isAdmin();
+      allow read: if resource.data.isPublished == true || can('results');
+      allow write: if can('results');
     }
 
     // ---------- Public submissions (anyone creates, only admins read/manage) ----------
@@ -90,7 +102,7 @@ service cloud.firestore {
                     && str('phone', 20)
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
-      allow read, update, delete: if isAdmin();
+      allow read, update, delete: if can('admissions');
     }
 
     match /messages/{id} {
@@ -101,17 +113,17 @@ service cloud.firestore {
                     && optStr('subject', 60)
                     && str('message', 2000) && request.resource.data.message.size() > 0
                     && request.resource.data.createdAt == request.time;
-      allow read, update, delete: if isAdmin();
+      allow read, update, delete: if can('messages');
     }
 
     // ---------- Students (private: admins + their own approved guardians) ----------
     match /students/{studentId} {
-      allow read: if isAdmin() || isGuardianOf(studentId);
-      allow write: if isAdmin();
+      allow read: if can('students') || isGuardianOf(studentId);
+      allow write: if can('students');
 
       match /results/{resultId} {
-        allow read: if isAdmin() || (isGuardianOf(studentId) && resource.data.isPublished == true);
-        allow write: if isAdmin();
+        allow read: if can('students') || (isGuardianOf(studentId) && resource.data.isPublished == true);
+        allow write: if can('students');
       }
     }
 
@@ -128,8 +140,14 @@ service cloud.firestore {
                     && optStr('studentName', 100)
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
-      allow read: if (isAuthenticated() && request.auth.uid == uid) || isAdmin();
-      allow update, delete: if isAdmin();
+      allow read: if (isAuthenticated() && request.auth.uid == uid) || can('guardians');
+      allow update, delete: if can('guardians');
+    }
+
+    // ---------- Moderators (only admins manage; a moderator reads own record) ----------
+    match /moderators/{uid} {
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == uid);
+      allow write: if isAdmin();
     }
 
     // ---------- Admin registry ----------

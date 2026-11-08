@@ -58,9 +58,13 @@ export const COLLECTIONS = {
       ] },
       { name: 'subject', label: 'পাঠদানের বিষয়', maxlength: 150 },
       { name: 'qualifications', label: 'শিক্ষাগত যোগ্যতা', full: true, maxlength: 200 },
-      { name: 'email', label: 'ইমেইল', type: 'email', maxlength: 120 },
+      { name: 'email', label: 'ইমেইল (ওয়েবসাইটে দেখাবে)', type: 'email', maxlength: 120 },
+      { name: 'joiningDate', label: 'যোগদানের তারিখ', type: 'date' },
+      { name: 'experience', label: 'অভিজ্ঞতা', maxlength: 60, placeholder: 'যেমন: ১৫ বছর' },
       DISPLAY_ORDER,
-      { name: 'photoUrl', label: 'ছবির লিংক', type: 'url', upload: 'image', full: true }
+      { name: 'bio', label: 'সংক্ষিপ্ত পরিচিতি (ওয়েবসাইটে দেখাবে)', type: 'textarea', rows: 3 },
+      { name: 'phone', label: 'মোবাইল (শুধু অফিসের রেকর্ড)', maxlength: 20, help: 'শিক্ষক তালিকা সবার জন্য খোলা — ব্যক্তিগত নম্বর দিতে না চাইলে খালি রাখুন' },
+      { name: 'photoUrl', label: 'ছবি', type: 'url', upload: 'image', full: true }
     ],
     primary: t => esc(t.name),
     secondary: t => join(esc(t.designation), esc(t.department), `ক্রম ${toBengaliNumber(t.displayOrder ?? 0)}`)

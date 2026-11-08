@@ -117,3 +117,40 @@ export async function isAdminUser(user) {
     return false;
   }
 }
+
+/**
+ * Staff role of a signed-in user:
+ *   { role: 'admin' }                                  — full access
+ *   { role: 'moderator', permissions: [...], name }    — only the listed sections
+ *   null                                               — not staff
+ * (Data access is enforced by firestore.rules; this only drives the UI.)
+ */
+export async function getStaffRole(user) {
+  if (!user) return null;
+  if (await isAdminUser(user)) return { role: 'admin', permissions: ['*'] };
+  if (!dbInstance) return null;
+  try {
+    const snap = await fsMod.getDoc(fsMod.doc(dbInstance, 'moderators', user.uid));
+    if (!snap.exists()) return null;
+    const d = snap.data();
+    if (d.active !== true) return { role: 'disabled' };
+    return { role: 'moderator', permissions: Array.isArray(d.permissions) ? d.permissions : [], name: d.name || '' };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Creates a Firebase Auth account for someone else (e.g. a moderator)
+ * WITHOUT signing the current admin out, by using a separate app instance.
+ * @returns {Promise<string>} the new user's uid
+ */
+export async function createAccountForOther(email, password) {
+  if (!isFirebaseConfigured || !appMod.initializeApp) throw new Error('Firebase is not configured');
+  const existing = (appMod.getApps?.() || []).find(a => a.name === 'account-creator');
+  const secondary = existing || appMod.initializeApp(firebaseConfig, 'account-creator');
+  const secondaryAuth = authMod.getAuth(secondary);
+  const cred = await authMod.createUserWithEmailAndPassword(secondaryAuth, email, password);
+  await authMod.signOut(secondaryAuth);
+  return cred.user.uid;
+}

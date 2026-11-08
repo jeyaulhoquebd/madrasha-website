@@ -11,7 +11,7 @@ import { getGeneralSettings } from '../components/layout.js';
 import { renderNoticeTicker } from '../components/noticeTicker.js';
 import { SITE } from '../site.js';
 import { cdnImage } from '../utils/cloudinary.js';
-import { getMuhtamim, renderMuhtamimCard } from '../components/muhtamim.js';
+import { getMuhtamim, renderMuhtamimCard, getPrincipal, renderPrincipalCard } from '../components/muhtamim.js';
 
 export const OFFICIAL_HERO_IMAGE_URL = SITE.heroUrl;
 export const OFFICIAL_LOGO_URL = SITE.logoUrl;
@@ -65,31 +65,11 @@ export async function loadRecentNotices() {
 export async function loadPrincipalMessage() {
   const section = document.getElementById('principal-section');
   const container = document.getElementById('principal-message-container');
-  if (!db || !container) return;
-
-  try {
-    const snap = await getDoc(doc(db, 'settings', 'principal'));
-    if (!snap.exists() || !snap.data().message) return;
-    const data = snap.data();
-
-    container.innerHTML = `
-      <figure class="card grid items-center gap-8 p-8 sm:p-10 md:grid-cols-[auto_1fr]">
-        <img src="${safeUrl(cdnImage(data.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(data.name || 'অধ্যক্ষ')}"
-          class="mx-auto h-28 w-28 rounded-full border border-stone-200 object-cover" loading="lazy" />
-        <div>
-          <span class="eyebrow">অধ্যক্ষের বাণী</span>
-          <blockquote class="mt-4 text-[15px] leading-8 text-stone-700">“${esc(data.message)}”</blockquote>
-          <figcaption class="mt-5 text-sm">
-            <span class="font-semibold text-brand-900">${esc(data.name || 'অধ্যক্ষ')}</span>
-            <span class="text-stone-500"> · ${esc(data.designation || 'অধ্যক্ষ')}</span>
-          </figcaption>
-        </div>
-      </figure>
-    `;
-    section?.classList.remove('hidden');
-  } catch (error) {
-    console.warn('[Firestore] principal message:', error.message);
-  }
+  if (!container) return;
+  const principal = await getPrincipal();
+  if (!principal) return;
+  container.innerHTML = renderPrincipalCard(principal, { compact: true });
+  section?.classList.remove('hidden');
 }
 
 export async function loadTeacherHighlights() {
