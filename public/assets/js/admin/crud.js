@@ -9,7 +9,7 @@
  */
 
 import {
-  db, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp
+  db, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp
 } from '../firebase/config.js';
 import { showAlert } from '../components/alert.js';
 import { esc } from '../utils/escape.js';
@@ -27,9 +27,9 @@ function toDateInput(value) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function fieldHtml(f, value) {
+function fieldHtml(f, value, isNew = true) {
   const id = `f-${f.name}`;
-  const req = f.required ? 'required' : '';
+  const req = (f.required ? 'required ' : '') + (f.lockOnEdit && !isNew ? 'readonly' : '');
   const ph = f.placeholder ? `placeholder="${esc(f.placeholder)}"` : '';
   const span = f.full || ['textarea', 'list'].includes(f.type) ? 'sm:col-span-2' : '';
   const label = `<span class="field-label">${f.label}${f.required ? ' *' : ''}</span>`;
@@ -44,6 +44,10 @@ function fieldHtml(f, value) {
       return `<h3 class="sm:col-span-2 border-t border-stone-100 pt-4 text-sm font-semibold text-brand-800">${f.label}</h3>`;
     case 'textarea':
       return `<label class="block ${span}">${label}<textarea id="${id}" name="${f.name}" rows="${f.rows || 5}" class="field" ${req} ${ph}>${esc(value ?? '')}</textarea>${help}</label>`;
+    case 'rows': {
+      const text = Array.isArray(value) ? value.map(r => f.columns.map(c => r[c.key] ?? '').join(' | ')).join('\n') : '';
+      return `<label class="block sm:col-span-2">${label}<textarea id="${id}" name="${f.name}" rows="${f.rows || 8}" class="field font-mono text-xs" ${ph}>${esc(text)}</textarea><span class="mt-1 block text-xs text-stone-400">প্রতি লাইনে: ${f.columns.map(c => c.label).join(' | ')}</span></label>`;
+    }
     case 'list':
       return `<label class="block ${span}">${label}<textarea id="${id}" name="${f.name}" rows="4" class="field" ${ph}>${esc(Array.isArray(value) ? value.join('\n') : '')}</textarea><span class="mt-1 block text-xs text-stone-400">প্রতি লাইনে একটি করে লিখুন</span></label>`;
     case 'select':
@@ -77,6 +81,17 @@ function readForm(form, fields) {
     if (f.type === 'checkbox') data[f.name] = el.checked;
     else if (f.type === 'number') data[f.name] = el.value === '' ? 0 : Number(el.value);
     else if (f.type === 'list') data[f.name] = el.value.split('\n').map(s => s.trim()).filter(Boolean);
+    else if (f.type === 'rows') {
+      data[f.name] = el.value.split('\n').map(l => l.trim()).filter(Boolean).map(line => {
+        const parts = line.split('|').map(p => p.trim());
+        const row = {};
+        f.columns.forEach((c, i) => {
+          const v = parts[i] ?? '';
+          row[c.key] = c.number && v !== '' && !isNaN(Number(v)) ? Number(v) : v;
+        });
+        return row;
+      });
+    }
     else if (f.type === 'date') data[f.name] = el.value ? new Date(`${el.value}T00:00:00`) : null;
     else data[f.name] = el.value.trim();
   }
@@ -96,6 +111,7 @@ function readForm(form, fields) {
  * @param {string} [cfg.sortField]        default 'createdAt'
  * @param {'asc'|'desc'} [cfg.sortDir]    default 'desc'
  * @param {boolean} [cfg.allowCreate=true]
+ * @param {string} [cfg.idField]          use this field's value as the document ID on create
  * @param {(item)=>string} [cfg.rowLink]   optional extra link per row (e.g. print view)
  * @param {string[]} [cfg.searchFields]
  * @param {(data, isNew)=>object} [cfg.beforeSave]
@@ -200,7 +216,7 @@ export function mountCrud(cfg) {
     editing = item;
     const isNew = !item.id;
     document.getElementById('crud-form-title').textContent = isNew ? `নতুন ${itemLabel}` : `${itemLabel} সম্পাদনা`;
-    document.getElementById('crud-fields').innerHTML = fields.map(f => fieldHtml(f, isNew ? f.default : item[f.name])).join('');
+    document.getElementById('crud-fields').innerHTML = fields.map(f => fieldHtml(f, isNew ? f.default : item[f.name], isNew)).join('');
     dialog.showModal();
 
     // Cloudinary upload buttons
@@ -247,8 +263,18 @@ export function mountCrud(cfg) {
     saveBtn.disabled = true;
     saveBtn.textContent = 'সংরক্ষণ হচ্ছে...';
     try {
-      if (isNew) await addDoc(collection(db, cfg.collection), data);
-      else await updateDoc(doc(db, cfg.collection, editing.id), data);
+      if (isNew && cfg.idField) {
+        // Document ID chosen by the admin (e.g. student ID card number)
+        const newId = String(data[cfg.idField] || '').trim();
+        if (!newId || newId.includes('/')) throw new Error('সঠিক আইডি দিন (/ চিহ্ন ছাড়া)');
+        const exists = await getDoc(doc(db, cfg.collection, newId));
+        if (exists.exists()) throw new Error(`"${newId}" আইডি আগে থেকেই আছে`);
+        await setDoc(doc(db, cfg.collection, newId), data);
+      } else if (isNew) {
+        await addDoc(collection(db, cfg.collection), data);
+      } else {
+        await updateDoc(doc(db, cfg.collection, editing.id), data);
+      }
       dialog.close();
       showAlert({ type: 'success', message: `${itemLabel} সংরক্ষিত হয়েছে।` });
       await load();

@@ -25,6 +25,15 @@ service cloud.firestore {
       return !(field in request.resource.data) || str(field, maxLen);
     }
 
+    // Approved guardian who is linked to this student ID by an admin
+    function isGuardianOf(studentId) {
+      let path = /databases/$(database)/documents/guardians/$(request.auth.uid);
+      return isAuthenticated()
+        && exists(path)
+        && get(path).data.status == 'approved'
+        && studentId in get(path).data.get('studentIds', []);
+    }
+
     // ---------- Public website content (anyone reads, only admins write) ----------
     match /settings/{docId} {
       allow read: if true;
@@ -92,6 +101,34 @@ service cloud.firestore {
                     && str('message', 2000) && request.resource.data.message.size() > 0
                     && request.resource.data.createdAt == request.time;
       allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- Students (private: admins + their own approved guardians) ----------
+    match /students/{studentId} {
+      allow read: if isAdmin() || isGuardianOf(studentId);
+      allow write: if isAdmin();
+
+      match /results/{resultId} {
+        allow read: if isAdmin() || (isGuardianOf(studentId) && resource.data.isPublished == true);
+        allow write: if isAdmin();
+      }
+    }
+
+    // ---------- Guardian accounts ----------
+    // A signed-in user may create ONLY their own record, always as "pending"
+    // and without any linked students. Only admins can approve / link students.
+    match /guardians/{uid} {
+      allow create: if isAuthenticated() && request.auth.uid == uid
+                    && request.resource.data.keys().hasOnly(['name', 'relation', 'phone', 'email', 'requestedStudentId', 'studentName', 'status', 'createdAt'])
+                    && str('name', 100) && request.resource.data.name.size() > 0
+                    && str('relation', 30) && str('phone', 20)
+                    && str('email', 120) && request.resource.data.email == request.auth.token.email
+                    && str('requestedStudentId', 40) && request.resource.data.requestedStudentId.size() > 0
+                    && optStr('studentName', 100)
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time;
+      allow read: if (isAuthenticated() && request.auth.uid == uid) || isAdmin();
+      allow update, delete: if isAdmin();
     }
 
     // ---------- Admin registry ----------

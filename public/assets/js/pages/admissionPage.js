@@ -10,6 +10,7 @@ import { showAlert } from '../components/alert.js';
 import { renderPageHeader, renderSectionHeading } from '../components/pageHeader.js';
 import { esc } from '../utils/escape.js';
 import { photoToDataUrl } from '../utils/image.js';
+import { mountTurnstile, verifyHuman, turnstileSlot } from '../components/turnstile.js';
 import { SITE, HIFZ_URL } from '../site.js';
 
 // level → classes
@@ -157,6 +158,7 @@ function renderForm() {
           <input type="checkbox" id="adm-declare" required class="mt-1 h-4 w-4 accent-brand-700" />
           <span>আমি ঘোষণা করছি যে, উপরে প্রদত্ত সকল তথ্য সত্য ও নির্ভুল। কোনো তথ্য ভুল প্রমাণিত হলে কর্তৃপক্ষ আবেদন বাতিল করতে পারবেন।</span>
         </label>
+        ${turnstileSlot('adm-turnstile')}
       `)}
 
       <div class="flex flex-col-reverse gap-3 border-t border-stone-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
@@ -243,6 +245,7 @@ function bindForm() {
   const preview = document.getElementById('adm-photo-preview');
   const submitBtn = document.getElementById('adm-submit-btn');
   const val = id => document.getElementById(id)?.value.trim() || '';
+  const captcha = mountTurnstile(document.getElementById('adm-turnstile'), { action: 'admission' });
   let photo = '';
 
   const currentLevel = () => classSel.selectedOptions[0]?.dataset.level || '';
@@ -354,6 +357,15 @@ function bindForm() {
     };
 
     submitBtn.disabled = true;
+    submitBtn.textContent = 'যাচাই করা হচ্ছে...';
+    const human = await verifyHuman(captcha.getToken());
+    if (!human.ok) {
+      showAlert({ type: 'error', message: human.message });
+      captcha.reset();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'আবেদন জমা দিন';
+      return;
+    }
     submitBtn.textContent = 'জমা হচ্ছে...';
     try {
       const ref = await addDoc(collection(db, 'admissions'), payload);
@@ -362,6 +374,7 @@ function bindForm() {
     } catch (error) {
       console.error('[Firestore] admission submit:', error);
       showAlert({ type: 'error', message: 'আবেদন জমা দেওয়া যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।' });
+      captcha.reset();
       submitBtn.disabled = false;
       submitBtn.textContent = 'আবেদন জমা দিন';
     }

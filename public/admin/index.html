@@ -55,7 +55,8 @@
       if (user?.email) document.getElementById('dash-greeting').textContent = `আসসালামু আলাইকুম, ${user.email}`;
 
       const ACTIONS = [
-        ['নোটিশ প্রকাশ', '/admin/notices.html'], ['শিক্ষক যুক্ত করুন', '/admin/teachers.html'],
+        ['নোটিশ প্রকাশ', '/admin/notices.html'], ['শিক্ষার্থী ও ফলাফল', '/admin/students.html'],
+        ['অভিভাবক অনুমোদন', '/admin/guardians.html'], ['শিক্ষক যুক্ত করুন', '/admin/teachers.html'],
         ['ফলাফল প্রকাশ', '/admin/results.html'], ['রুটিন যুক্ত করুন', '/admin/routines.html'],
         ['ফাইল আপলোড', '/admin/downloads.html'], ['গ্যালারি', '/admin/gallery.html'],
         ['পরিচালনা পর্ষদ', '/admin/administration.html'], ['সেটিংস ও অধ্যক্ষের বাণী', '/admin/settings.html']
@@ -70,8 +71,9 @@
         try { return (await getDocs(collection(db, name))).docs.map(d => ({ id: d.id, ...d.data() })); } catch { return []; }
       };
 
-      const [notices, teachers, admissions, messages] = await Promise.all([count('notices'), count('teachers'), all('admissions'), all('messages')]);
+      const [students, guardians, admissions, messages] = await Promise.all([count('students'), all('guardians'), all('admissions'), all('messages')]);
       const pending = admissions.filter(a => (a.status || 'pending') === 'pending').length;
+      const pendingGuardians = guardians.filter(g => g.status === 'pending').length;
       const unread = messages.filter(m => !m.handled).length;
 
       const stat = (label, value, href, accent = false) => `
@@ -82,8 +84,8 @@
       document.getElementById('dash-stats').innerHTML = [
         stat('অপেক্ষমান ভর্তি আবেদন', pending, '/admin/admissions.html', true),
         stat('নতুন বার্তা', unread, '/admin/messages.html', true),
-        stat('মোট নোটিশ', notices, '/admin/notices.html'),
-        stat('মোট শিক্ষক', teachers, '/admin/teachers.html')
+        stat('অনুমোদনের অপেক্ষায় অভিভাবক', pendingGuardians, '/admin/guardians.html', true),
+        stat('মোট শিক্ষার্থী', students, '/admin/students.html')
       ].join('');
 
       const empty = msg => `<p class="px-5 py-8 text-center text-sm text-stone-400">${msg}</p>`;

@@ -295,6 +295,75 @@ export const COLLECTIONS = {
     )
   },
 
+
+  students: {
+    collection: 'students',
+    title: 'শিক্ষার্থী',
+    subtitle: 'শিক্ষার্থীর আইডি কার্ড নম্বরই এখানে আইডি। অভিভাবক এই আইডি দিয়ে নিবন্ধন করলে অনুমোদনের পর শুধু নিজের সন্তানের তথ্য ও ফলাফল দেখতে পারবেন। "ফলাফল" বাটনে পরীক্ষার নম্বর যুক্ত করুন।',
+    itemLabel: 'শিক্ষার্থী',
+    idField: 'studentId',
+    sortField: 'studentId',
+    sortDir: 'asc',
+    thumbField: 'photoUrl',
+    rowLink: st => `/admin/student-results.html?id=${encodeURIComponent(st.id)}`,
+    rowLinkLabel: 'ফলাফল',
+    searchFields: ['studentId', 'name', 'nameEn', 'className', 'roll', 'fatherName'],
+    fields: [
+      { name: 'studentId', label: 'শিক্ষার্থীর আইডি (আইডি কার্ড নম্বর)', required: true, lockOnEdit: true, maxlength: 40, placeholder: 'যেমন: 2026-0123' },
+      { name: 'status', label: 'অবস্থা', type: 'select', required: true, default: 'active', options: [
+        { value: 'active', label: 'অধ্যয়নরত' }, { value: 'passed', label: 'উত্তীর্ণ / বিদায়ী' }, { value: 'left', label: 'প্রতিষ্ঠান ত্যাগ' }
+      ] },
+      { name: 'name', label: 'নাম (বাংলা)', required: true, maxlength: 100 },
+      { name: 'nameEn', label: 'নাম (ইংরেজি)', maxlength: 100 },
+      { name: 'className', label: 'শ্রেণি', required: true, maxlength: 60, placeholder: 'যেমন: ষষ্ঠ শ্রেণি' },
+      { name: 'section', label: 'শাখা', maxlength: 30 },
+      { name: 'roll', label: 'রোল', maxlength: 10 },
+      { name: 'session', label: 'শিক্ষাবর্ষ', maxlength: 10 },
+      { name: 'dateOfBirth', label: 'জন্ম তারিখ', maxlength: 20 },
+      { name: 'bloodGroup', label: 'রক্তের গ্রুপ', maxlength: 10 },
+      { name: 'fatherName', label: 'পিতার নাম', maxlength: 100 },
+      { name: 'motherName', label: 'মাতার নাম', maxlength: 100 },
+      { name: 'guardianPhone', label: 'অভিভাবকের মোবাইল', maxlength: 20 },
+      { name: 'address', label: 'ঠিকানা', maxlength: 300 },
+      { name: 'photoUrl', label: 'ছবির লিংক', type: 'url', upload: 'image', full: true },
+      { name: 'remarks', label: 'মন্তব্য (অভিভাবক দেখতে পাবেন)', type: 'textarea', rows: 2 }
+    ],
+    primary: st => `${esc(st.name)} <span class="font-normal text-stone-400">· ${esc(st.id)}</span>`,
+    secondary: st => join(esc(st.className), st.section ? `শাখা ${esc(st.section)}` : '', st.roll ? `রোল ${esc(st.roll)}` : '')
+  },
+
+  guardians: {
+    collection: 'guardians',
+    title: 'অভিভাবক অ্যাকাউন্ট',
+    subtitle: 'ওয়েবসাইটে নিবন্ধিত অভিভাবক। শিক্ষার্থীর আইডি মিলিয়ে "অনুমোদিত" করলে তিনি লগইন করে শুধু নিজের সন্তানের তথ্য দেখতে পারবেন।',
+    itemLabel: 'অভিভাবক',
+    allowCreate: false,
+    searchFields: ['name', 'email', 'phone', 'requestedStudentId'],
+    fields: [
+      { name: 'status', label: 'অবস্থা', type: 'select', required: true, options: [
+        { value: 'pending', label: 'অপেক্ষমান' }, { value: 'approved', label: 'অনুমোদিত' }, { value: 'rejected', label: 'বাতিল' }
+      ] },
+      { name: 'requestedStudentId', label: 'অভিভাবকের দেওয়া শিক্ষার্থী আইডি', lockOnEdit: true, maxlength: 40 },
+      { name: 'studentIds', label: 'যে শিক্ষার্থীদের তথ্য দেখতে পারবেন (আইডি)', type: 'list', help: 'খালি রেখে অনুমোদন দিলে অভিভাবকের দেওয়া আইডিটি স্বয়ংক্রিয়ভাবে যুক্ত হবে' },
+      { name: 'name', label: 'নাম', maxlength: 100 },
+      { name: 'relation', label: 'সম্পর্ক', maxlength: 30 },
+      { name: 'phone', label: 'মোবাইল', maxlength: 20 },
+      { name: 'email', label: 'ইমেইল', lockOnEdit: true, maxlength: 120 }
+    ],
+    beforeSave: d => {
+      if (d.status === 'approved' && (!d.studentIds || !d.studentIds.length) && d.requestedStudentId) {
+        d.studentIds = [d.requestedStudentId];
+      }
+      return d;
+    },
+    primary: g => `${g.status === 'pending' ? '<span class="mr-1 inline-block h-2 w-2 rounded-full bg-gold-500"></span>' : ''}${esc(g.name)} <span class="font-normal text-stone-400">(${esc(g.relation || 'অভিভাবক')})</span>`,
+    secondary: g => join(
+      { pending: '<span class="text-amber-700">অপেক্ষমান</span>', approved: '<span class="text-brand-700">অনুমোদিত</span>', rejected: '<span class="text-rose-700">বাতিল</span>' }[g.status] || '',
+      `আইডি: ${esc((g.studentIds && g.studentIds.length ? g.studentIds : [g.requestedStudentId]).join(', '))}`,
+      esc(g.phone), esc(g.email)
+    )
+  },
+
   messages: {
     collection: 'messages',
     title: 'বার্তা',
@@ -314,3 +383,47 @@ export const COLLECTIONS = {
     secondary: m => join(esc(m.phone), fmt.date(m.createdAt), esc(String(m.message || '').slice(0, 80)))
   }
 };
+
+/** Exam results of one student (sub-collection students/{id}/results) */
+export function studentResultsConfig(studentId, studentName = '') {
+  return {
+    collection: `students/${studentId}/results`,
+    title: `পরীক্ষার ফলাফল — ${esc(studentName || studentId)}`,
+    subtitle: `শিক্ষার্থী আইডি: ${esc(studentId)}। "অভিভাবককে দেখান" চিহ্নিত ফলাফল অভিভাবক তাঁর অ্যাকাউন্টে দেখতে পাবেন।`,
+    itemLabel: 'ফলাফল',
+    sortField: 'publishedAt',
+    searchFields: ['examName', 'year'],
+    fields: [
+      { name: 'examName', label: 'পরীক্ষা', type: 'select', required: true, default: 'বার্ষিক পরীক্ষা', options: [
+        'প্রথম সাময়িক পরীক্ষা', 'অর্ধবার্ষিক পরীক্ষা', 'দ্বিতীয় সাময়িক পরীক্ষা', 'বার্ষিক পরীক্ষা',
+        'প্রাক-নির্বাচনী পরীক্ষা', 'নির্বাচনী পরীক্ষা', 'মাসিক পরীক্ষা', 'বোর্ড পরীক্ষা'
+      ].map(v => ({ value: v, label: v })) },
+      { name: 'year', label: 'শিক্ষাবর্ষ', required: true, maxlength: 10, default: String(new Date().getFullYear()) },
+      { name: 'className', label: 'শ্রেণি', maxlength: 60 },
+      { name: 'publishedAt', label: 'প্রকাশের তারিখ', type: 'date', default: new Date() },
+      { name: 'subjects', label: 'বিষয়ভিত্তিক নম্বর', type: 'rows', rows: 10,
+        placeholder: 'কুরআন মাজিদ | 100 | 85 | A+\nআরবি ১ম পত্র | 100 | 78 | A\nবাংলা | 100 | 72 | A',
+        columns: [
+          { key: 'subject', label: 'বিষয়' },
+          { key: 'fullMarks', label: 'পূর্ণমান', number: true },
+          { key: 'obtained', label: 'প্রাপ্ত নম্বর', number: true },
+          { key: 'grade', label: 'গ্রেড' }
+        ] },
+      { name: 'totalMarks', label: 'মোট প্রাপ্ত নম্বর', type: 'number', help: 'খালি রাখলে বিষয়গুলো যোগ করে বসবে' },
+      { name: 'gpa', label: 'জিপিএ', maxlength: 10 },
+      { name: 'grade', label: 'সামগ্রিক গ্রেড', maxlength: 10 },
+      { name: 'position', label: 'মেধাক্রম', maxlength: 10 },
+      { name: 'attendance', label: 'উপস্থিতি', maxlength: 30, placeholder: 'যেমন: ১৮০/২০০ দিন' },
+      { name: 'remarks', label: 'শিক্ষকের মন্তব্য', type: 'textarea', rows: 2 },
+      { name: 'isPublished', label: 'অভিভাবককে দেখান', type: 'checkbox', default: true }
+    ],
+    beforeSave: d => {
+      if (!d.totalMarks && Array.isArray(d.subjects)) {
+        d.totalMarks = d.subjects.reduce((sum, r) => sum + (Number(r.obtained) || 0), 0);
+      }
+      return d;
+    },
+    primary: r => `${esc(r.examName)} ${esc(r.year)}`,
+    secondary: r => join(fmt.status(r.isPublished), `মোট ${toBengaliNumber(r.totalMarks ?? 0)}`, r.gpa ? `জিপিএ ${esc(r.gpa)}` : '', r.position ? `মেধাক্রম ${esc(r.position)}` : '')
+  };
+}

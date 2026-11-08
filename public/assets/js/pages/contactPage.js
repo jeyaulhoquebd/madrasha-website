@@ -10,6 +10,7 @@ import { showAlert } from '../components/alert.js';
 import { renderPageHeader } from '../components/pageHeader.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
+import { mountTurnstile, verifyHuman, turnstileSlot } from '../components/turnstile.js';
 
 const DEFAULT_MAP = 'https://maps.google.com/maps?q=' + encodeURIComponent(SITE.mapQuery) + '&z=15&output=embed';
 const SUBJECTS = ['ভর্তি সংক্রান্ত', 'ফলাফল ও সনদ', 'সাধারণ পরামর্শ', 'অন্যান্য'];
@@ -77,6 +78,7 @@ export async function initContactPage() {
           </div>
           <label class="block"><span class="field-label">বার্তা *</span>
             <textarea id="contact-message" required rows="5" maxlength="2000" class="field"></textarea></label>
+          ${turnstileSlot('contact-turnstile')}
           <button type="submit" id="contact-submit-btn" class="btn btn-primary">বার্তা পাঠান</button>
         </form>
 
@@ -90,6 +92,7 @@ export async function initContactPage() {
   const form = document.getElementById('contact-inquiry-form');
   const btn = document.getElementById('contact-submit-btn');
   const success = document.getElementById('contact-success-msg');
+  const captcha = form ? mountTurnstile(document.getElementById('contact-turnstile'), { action: 'contact' }) : null;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -98,6 +101,14 @@ export async function initContactPage() {
 
     btn.disabled = true;
     btn.textContent = 'পাঠানো হচ্ছে...';
+    const human = await verifyHuman(captcha.getToken());
+    if (!human.ok) {
+      showAlert({ type: 'error', message: human.message });
+      captcha.reset();
+      btn.disabled = false;
+      btn.textContent = 'বার্তা পাঠান';
+      return;
+    }
     try {
       await addDoc(collection(db, 'messages'), {
         name: val('contact-name'),
@@ -108,11 +119,13 @@ export async function initContactPage() {
         createdAt: serverTimestamp()
       });
       form.reset();
+      captcha.reset();
       success.classList.remove('hidden');
       showAlert({ type: 'success', message: 'বার্তা পাঠানো হয়েছে।' });
     } catch (error) {
       console.error('[Firestore] message submit:', error);
       showAlert({ type: 'error', message: 'বার্তা পাঠানো যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।' });
+      captcha.reset();
     } finally {
       btn.disabled = false;
       btn.textContent = 'বার্তা পাঠান';
