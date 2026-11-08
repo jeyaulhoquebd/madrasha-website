@@ -3,7 +3,7 @@
  * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  */
 
-import { SITE } from '../site.js';
+import { SITE, DEVELOPER, HIFZ_URL } from '../site.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { toBengaliNumber } from '../utils/date.js';
 
@@ -11,7 +11,7 @@ const col = (title, links) => `
   <div>
     <h4 class="mb-4 text-sm font-semibold text-white">${title}</h4>
     <ul class="space-y-2.5 text-sm">
-      ${links.map(([label, url]) => `<li><a href="${url}" class="text-brand-100/70 transition hover:text-white">${label}</a></li>`).join('')}
+      ${links.map(([label, url]) => `<li><a href="${url}" ${url.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} class="text-brand-100/70 transition hover:text-white">${label}</a></li>`).join('')}
     </ul>
   </div>
 `;
@@ -49,6 +49,7 @@ export function renderFooter(settings = {}) {
 
         ${col('শিক্ষার্থী সেবা', [
           ['ভর্তি তথ্য', '/admission.html'],
+          ['হিফজ বিভাগ ↗', HIFZ_URL],
           ['নোটিশ বোর্ড', '/notices.html'],
           ['পরীক্ষার ফলাফল', '/results.html'],
           ['ক্লাস ও পরীক্ষা রুটিন', '/routines.html'],
@@ -73,7 +74,7 @@ export function renderFooter(settings = {}) {
       <div class="border-t border-white/10">
         <div class="wrap flex flex-col items-center justify-between gap-2 py-5 text-xs text-brand-100/50 sm:flex-row">
           <p>© ${year} ${SITE.name}</p>
-          <p id="footer-dev-credit">${settings?.developerCredit ? esc(settings.developerCredit) : ''}</p>
+          <p>ওয়েবসাইট ডেভেলপার: <a id="footer-dev-credit" href="${DEVELOPER.url}" target="_blank" rel="noopener" class="font-medium text-gold-300 hover:text-white">${settings?.developerCredit ? esc(settings.developerCredit) : DEVELOPER.name}</a></p>
         </div>
       </div>
     </footer>

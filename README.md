@@ -124,7 +124,10 @@ npm run dev         # http://localhost:3000
 | `notices`, `results` | `isPublished: true` হলে জনসাধারণ দেখতে পায় |
 | `teachers`, `staff`, `administration`, `departments` | `displayOrder` অনুযায়ী সাজানো |
 | `routines`, `downloads`, `gallery`, `calendar` | ফাইল ও মিডিয়া |
-| `admissions`, `messages` | জনসাধারণ শুধু জমা দিতে পারে, পড়তে পারেন শুধু এডমিন |
+| `admissions` | পূর্ণাঙ্গ ভর্তি আবেদন (শিক্ষার্থীর ছবি, জন্ম নিবন্ধন, NID, পিতা-মাতা ও অভিভাবকের তথ্য, ঠিকানা, পূর্ববর্তী শিক্ষা)। ছবি ব্রাউজারেই ছোট করে (~২৫ KB) ডকুমেন্টের ভেতরে রাখা হয়। এডমিন প্যানেল থেকে আবেদনপত্র প্রিন্ট করা যায় |
+| `messages` | যোগাযোগ ফর্মের বার্তা |
+
+হিফজ বিভাগ: মেনু, হোমপেজ ও বিভাগ পাতা থেকে https://hifjacademy.com/ ওয়েবসাইটে যায় (`HIFZ_URL`, `site.js`)।
 
 ---
 

@@ -7,6 +7,7 @@
 import { db, collection, getDocs, query, orderBy } from '../firebase/config.js';
 import { renderPageHeader } from '../components/pageHeader.js';
 import { esc } from '../utils/escape.js';
+import { HIFZ_URL } from '../site.js';
 
 // Shown until departments are published in Firestore (general Fazil-madrasa curriculum; no unverified branches)
 const DEFAULT_DEPARTMENTS = [
@@ -66,6 +67,13 @@ export async function initDepartmentsPage() {
           ${d.admissionInfo ? `<p class="mt-4 border-t border-stone-100 pt-3 text-xs leading-relaxed text-stone-500">${esc(d.admissionInfo)}</p>` : ''}
         </article>
       `).join('')}
+
+      <a href="${HIFZ_URL}" target="_blank" rel="noopener" class="group flex flex-col rounded-xl border border-brand-200 bg-brand-50/60 p-6 transition hover:border-brand-500">
+        <span class="text-xs font-medium text-gold-600">হিফজুল কুরআন</span>
+        <h2 class="mt-2 text-lg font-semibold text-brand-900">হিফজ বিভাগ</h2>
+        <p class="mt-3 text-sm leading-relaxed text-stone-600">পবিত্র কুরআন হিফজ বিভাগের ভর্তি, কার্যক্রম ও বিস্তারিত তথ্য হিফজ একাডেমির নিজস্ব ওয়েবসাইটে পাওয়া যাবে।</p>
+        <span class="mt-4 text-sm font-semibold text-brand-700 group-hover:underline">hifjacademy.com ↗</span>
+      </a>
     </div>
 
     <div class="mt-10 text-center">

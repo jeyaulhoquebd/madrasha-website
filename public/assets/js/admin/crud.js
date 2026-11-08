@@ -36,6 +36,12 @@ function fieldHtml(f, value) {
   const help = f.help ? `<span class="mt-1 block text-xs text-stone-400">${f.help}</span>` : '';
 
   switch (f.type) {
+    case 'photo':
+      return `<div class="${span || 'sm:col-span-2'}">${label}${value
+        ? `<img src="${esc(value)}" alt="" class="h-36 w-28 rounded-lg border border-stone-200 object-cover" />`
+        : '<p class="text-sm text-stone-400">ছবি নেই</p>'}</div>`;
+    case 'heading':
+      return `<h3 class="sm:col-span-2 border-t border-stone-100 pt-4 text-sm font-semibold text-brand-800">${f.label}</h3>`;
     case 'textarea':
       return `<label class="block ${span}">${label}<textarea id="${id}" name="${f.name}" rows="${f.rows || 5}" class="field" ${req} ${ph}>${esc(value ?? '')}</textarea>${help}</label>`;
     case 'list':
@@ -65,6 +71,7 @@ function fieldHtml(f, value) {
 function readForm(form, fields) {
   const data = {};
   for (const f of fields) {
+    if (f.type === 'photo' || f.type === 'heading') continue;
     const el = form.elements[f.name];
     if (!el) continue;
     if (f.type === 'checkbox') data[f.name] = el.checked;
@@ -89,6 +96,7 @@ function readForm(form, fields) {
  * @param {string} [cfg.sortField]        default 'createdAt'
  * @param {'asc'|'desc'} [cfg.sortDir]    default 'desc'
  * @param {boolean} [cfg.allowCreate=true]
+ * @param {(item)=>string} [cfg.rowLink]   optional extra link per row (e.g. print view)
  * @param {string[]} [cfg.searchFields]
  * @param {(data, isNew)=>object} [cfg.beforeSave]
  */
@@ -180,6 +188,7 @@ export function mountCrud(cfg) {
           ${cfg.secondary ? `<p class="mt-0.5 truncate text-xs text-stone-500">${cfg.secondary(it)}</p>` : ''}
         </div>
         <div class="flex flex-shrink-0 gap-1">
+          ${cfg.rowLink ? `<a href="${cfg.rowLink(it)}" target="_blank" rel="noopener" class="inline-flex h-9 items-center rounded-lg px-2.5 text-xs font-medium text-stone-500 hover:bg-brand-50 hover:text-brand-700">${cfg.rowLinkLabel || 'দেখুন'}</a>` : ''}
           <button type="button" data-edit="${esc(it.id)}" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-stone-500 hover:bg-brand-50 hover:text-brand-700" title="সম্পাদনা" aria-label="সম্পাদনা">${ICON_EDIT}</button>
           <button type="button" data-delete="${esc(it.id)}" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-stone-500 hover:bg-rose-50 hover:text-rose-700" title="মুছুন" aria-label="মুছুন">${ICON_DELETE}</button>
         </div>

@@ -31,7 +31,7 @@ export function renderNavigation(activePage = 'home') {
         <div class="invisible absolute left-0 top-full z-50 w-56 translate-y-1 pt-1 opacity-0 transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
           <div class="overflow-hidden rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg shadow-stone-900/5">
             ${item.children.map(child => `
-              <a href="${child.url}" class="block rounded-lg px-3 py-2 text-sm transition ${
+              <a href="${child.url}" ${child.external ? 'target="_blank" rel="noopener"' : ''} class="block rounded-lg px-3 py-2 text-sm transition ${
                 child.key === activePage ? 'bg-brand-50 font-semibold text-brand-800' : 'text-stone-600 hover:bg-stone-50 hover:text-brand-700'
               }">${child.label}</a>
             `).join('')}

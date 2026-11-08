@@ -104,6 +104,6 @@ export function updateLayoutSettings(settings = {}) {
   }
   if (settings.developerCredit) {
     const el = document.getElementById('footer-dev-credit');
-    if (el) el.textContent = `ওয়েবসাইট: ${settings.developerCredit}`;
+    if (el) el.textContent = settings.developerCredit;
   }
 }
