@@ -9,6 +9,7 @@
 import { esc } from '../utils/escape.js';
 import { toBengaliNumber } from '../utils/date.js';
 import { fmt } from './crud.js';
+import { parseVideo } from '../utils/video.js';
 
 const join = (...parts) => parts.filter(Boolean).join(' · ');
 const today = () => new Date();
@@ -215,17 +216,19 @@ export const COLLECTIONS = {
       ] },
       { name: 'title', label: 'শিরোনাম', required: true, full: true, maxlength: 150 },
       { name: 'imageUrl', label: 'ছবি', type: 'url', upload: 'image', full: true, help: 'ছবির জন্য "ছবি আপলোড" চাপুন। ভিডিওর ক্ষেত্রে খালি রাখলে থাম্বনেইল নিজে থেকে বসবে।' },
-      { name: 'videoUrl', label: 'ভিডিও লিংক', type: 'url', full: true, placeholder: 'https://www.youtube.com/watch?v=... অথবা https://www.facebook.com/.../videos/...' },
+      { name: 'videoUrl', label: 'ভিডিও লিংক বা এম্বেড কোড', type: 'textarea', rows: 3, full: true,
+        placeholder: 'YouTube/Facebook লিংক, অথবা Facebook-এর "Embed" থেকে কপি করা <iframe ...> কোড এখানে পেস্ট করুন',
+        help: 'Facebook রিল/ভিডিও লিংক, Facebook-এর এম্বেড লিংক বা পুরো iframe কোড, অথবা YouTube লিংক — যেকোনোটি দিলেই চলবে। Facebook ভিডিওর জন্য একটি থাম্বনেইল ছবি আপলোড করলে কার্ড সুন্দর দেখাবে।' },
       { name: 'description', label: 'বিবরণ', full: true, maxlength: 300 }
     ],
     beforeSave: d => {
       if (d.type === 'video') {
-        const url = d.videoUrl || '';
-        const isYoutube = /(youtube\.com|youtu\.be)\//.test(url);
-        const isFacebook = /(facebook\.com|fb\.watch)\//.test(url);
-        if (!isYoutube && !isFacebook) throw new Error('ভিডিওর জন্য সঠিক YouTube বা Facebook লিংক দিন');
-        const yt = /(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([\w-]{11})/.exec(url);
-        if (yt && !d.imageUrl) d.imageUrl = `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
+        const video = parseVideo(d.videoUrl);
+        if (!video) throw new Error('ভিডিওর জন্য সঠিক YouTube বা Facebook লিংক / এম্বেড কোড দিন');
+        d.videoUrl = video.url;          // clean, canonical link
+        d.videoProvider = video.provider;
+        d.vertical = video.vertical;     // reels / shorts play in a tall frame
+        if (!d.imageUrl && video.thumbnail) d.imageUrl = video.thumbnail;
         d.thumbnailUrl = d.imageUrl || '';
       } else if (!d.imageUrl) {
         throw new Error('ছবি আপলোড করুন অথবা ছবির লিংক দিন');
@@ -233,7 +236,7 @@ export const COLLECTIONS = {
       return d;
     },
     primary: g => esc(g.title),
-    secondary: g => join(g.type === 'video' ? (/facebook|fb\.watch/.test(g.videoUrl || '') ? 'Facebook ভিডিও' : 'YouTube ভিডিও') : 'ছবি', esc({ campus: 'ক্যাম্পাস', events: 'অনুষ্ঠান', sports: 'ক্রীড়া' }[g.category] || g.category))
+    secondary: g => join(g.type === 'video' ? `${parseVideo(g.videoUrl)?.provider === 'facebook' ? 'Facebook' : 'YouTube'} ভিডিও${g.vertical ? ' (রিল)' : ''}` : 'ছবি', esc({ campus: 'ক্যাম্পাস', events: 'অনুষ্ঠান', sports: 'ক্রীড়া' }[g.category] || g.category))
   },
 
   calendar: {
