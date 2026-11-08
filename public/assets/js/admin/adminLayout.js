@@ -16,6 +16,8 @@ const NAV = [
   ['notices', 'নোটিশ', '/admin/notices.html'],
   ['admissions', 'ভর্তি আবেদন', '/admin/admissions.html'],
   ['messages', 'বার্তা', '/admin/messages.html'],
+  ['students', 'শিক্ষার্থী ও ফলাফল', '/admin/students.html'],
+  ['guardians', 'অভিভাবক', '/admin/guardians.html'],
   ['teachers', 'শিক্ষক', '/admin/teachers.html'],
   ['staff', 'কর্মচারী', '/admin/staff.html'],
   ['administration', 'পরিচালনা পর্ষদ', '/admin/administration.html'],

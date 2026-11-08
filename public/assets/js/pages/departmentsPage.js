@@ -35,6 +35,9 @@ export async function initDepartmentsPage() {
   const container = document.getElementById('departments-grid-container');
   if (!container) return;
 
+  // Show the default list immediately, then replace it if Firestore has data
+  render(container, DEFAULT_DEPARTMENTS);
+
   let departments = [];
   if (db) {
     try {
@@ -44,8 +47,10 @@ export async function initDepartmentsPage() {
       console.warn('[Firestore] departments:', e.message);
     }
   }
-  if (departments.length === 0) departments = DEFAULT_DEPARTMENTS;
+  if (departments.length) render(container, departments);
+}
 
+function render(container, departments) {
   container.innerHTML = `
     ${renderPageHeader({
       eyebrow: 'একাডেমিক',

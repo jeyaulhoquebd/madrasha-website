@@ -1,2 +1,3 @@
 # Cloudflare Pages redirects: /admin opens the admin panel
 /admin   /admin/   301
+/guardian /guardian/ 301

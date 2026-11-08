@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>শিক্ষার্থীর ফলাফল — প্রশাসনিক প্যানেল</title>
+    <link rel="icon" href="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/output.css">
+  </head>
+  <body class="invisible flex min-h-screen flex-col bg-ivory">
+    <div id="admin-header-slot"></div>
+
+    <main id="crud-root" class="mx-auto w-full max-w-6xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8"></main>
+
+    <script type="module">
+      import { initAdminPage } from '/assets/js/admin/adminLayout.js';
+      import { mountCrud } from '/assets/js/admin/crud.js';
+      import { studentResultsConfig } from '/assets/js/admin/collections.js';
+      import { db, doc, getDoc } from '/assets/js/firebase/config.js';
+
+      await initAdminPage('students');
+      const id = new URLSearchParams(location.search).get('id') || '';
+      let name = '';
+      try {
+        const snap = await getDoc(doc(db, 'students', id));
+        if (snap.exists()) name = snap.data().name || '';
+      } catch {}
+      if (!id || !name) {
+        document.getElementById('crud-root').innerHTML = '<p class="text-sm text-rose-700">শিক্ষার্থী পাওয়া যায়নি। <a class="link" href="/admin/students.html">শিক্ষার্থী তালিকা</a></p>';
+      } else {
+        mountCrud(studentResultsConfig(id, name));
+        document.getElementById('crud-root').insertAdjacentHTML('afterbegin', '<a href="/admin/students.html" class="text-sm text-stone-500 hover:text-brand-700">← শিক্ষার্থী তালিকা</a>');
+      }
+    </script>
+  </body>
+</html>

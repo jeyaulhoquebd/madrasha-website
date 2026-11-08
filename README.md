@@ -66,9 +66,8 @@
 ├── styles/
 │   └── input.css               # টেইলউইন্ড সোর্স সিএসএস
 │
-├── functions/                  # ফায়ারবেস ক্লাউড ফাংশন (প্রশাসনিক অপারেশন)
-│   ├── index.js
-│   └── package.json
+├── functions/                  # Cloudflare Pages Functions
+│   └── api/verify-turnstile.js # Turnstile সার্ভার যাচাই
 │
 ├── firestore.rules             # ফায়ারস্টোর নিরাপত্তা নীতিমালা
 ├── firestore.indexes.json      # কম্পোজিট কুয়েরি ইনডেক্স
@@ -130,6 +129,19 @@ npm run dev         # http://localhost:3000
 হিফজ বিভাগ: মেনু, হোমপেজ ও বিভাগ পাতা থেকে https://hifjacademy.com/ ওয়েবসাইটে যায় (`HIFZ_URL`, `site.js`)।
 
 ---
+
+## 👪 অভিভাবক কর্নার (`/guardian/`)
+1. অভিভাবক ইমেইল, পাসওয়ার্ড ও শিক্ষার্থীর আইডি দিয়ে নিবন্ধন করেন → `guardians/{uid}` তৈরি হয় (`pending`)।
+2. এডমিন → **অভিভাবক** পাতায় আইডি মিলিয়ে "অনুমোদিত" করেন (চাইলে একাধিক শিক্ষার্থী আইডি যুক্ত করা যায়)।
+3. এডমিন → **শিক্ষার্থী ও ফলাফল** পাতায় শিক্ষার্থী (আইডি কার্ড নম্বর = ডকুমেন্ট আইডি) ও তার পরীক্ষার বিষয়ভিত্তিক নম্বর যুক্ত করেন।
+4. অনুমোদিত অভিভাবক লগইন করে **শুধু নিজের সন্তানের** তথ্য ও প্রকাশিত ফলাফল দেখতে পান — এটি `firestore.rules` (`isGuardianOf`) দ্বারা নিশ্চিত।
+
+## 🤖 Cloudflare Turnstile (মানব-যাচাই)
+- ভর্তি ফরম, যোগাযোগ ফরম, অভিভাবক লগইন/নিবন্ধন ও এডমিন লগইনে যুক্ত।
+- Site key: `public/assets/js/components/turnstile.js`
+- সার্ভার যাচাই: Cloudflare Pages Function `functions/api/verify-turnstile.js`
+- **Secret key কোডে নেই।** Cloudflare → Workers & Pages → প্রজেক্ট → Settings → Variables and Secrets → Add → Type: *Secret*, Name: `TURNSTILE_SECRET_KEY`, তারপর নতুন করে ডেপ্লয় করুন।
+- লোকাল ডেভেলপমেন্টে (localhost) যাচাই স্বয়ংক্রিয়ভাবে পাস হয়।
 
 ## 🛡️ ডেটা সততা ও নীতিমালা (Data Integrity)
 - কোনো কাল্পনিক শিক্ষক, ফলাফল, তারিখ বা ফোন নম্বর ব্যবহার করা নিষিদ্ধ। তথ্য না থাকলে সংশ্লিষ্ট অংশ লুকানো থাকে অথবা মার্জিত খালি অবস্থা দেখায়।

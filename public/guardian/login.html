@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>অভিভাবক লগইন — খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা</title>
+    <link rel="icon" href="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/output.css">
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <div id="site-header"></div>
+
+    <main class="wrap flex-grow py-10 sm:py-14">
+      <div class="mx-auto max-w-lg">
+        <div class="mb-8 text-center">
+          <span class="eyebrow">অভিভাবক কর্নার</span>
+          <h1 class="mt-3 text-3xl font-bold text-brand-900">অভিভাবক লগইন</h1>
+          <p class="mt-2 text-sm leading-relaxed text-stone-600">আপনার সন্তানের তথ্য, পরীক্ষার নম্বর ও ফলাফল দেখতে লগইন করুন। নতুন হলে প্রথমে নিবন্ধন করুন — মাদ্রাসা কর্তৃপক্ষের অনুমোদনের পর লগইন করা যাবে।</p>
+        </div>
+
+        <div class="card p-6 sm:p-8">
+          <div role="tablist" class="mb-6 flex rounded-lg border border-stone-200 bg-stone-50 p-1">
+            <button type="button" role="tab" data-tab="login">লগইন</button>
+            <button type="button" role="tab" data-tab="signup">নতুন নিবন্ধন</button>
+          </div>
+
+          <p id="guardian-notice" class="hidden"></p>
+
+          <form id="guardian-login-form" data-panel="login" class="space-y-4">
+            <label class="block"><span class="field-label">ইমেইল</span>
+              <input type="email" name="email" required autocomplete="username" class="field"></label>
+            <label class="block"><span class="field-label">পাসওয়ার্ড</span>
+              <input type="password" name="password" required autocomplete="current-password" class="field"></label>
+            <div><span class="field-label">মানব-যাচাই</span><div id="login-turnstile" class="min-h-[65px]"></div></div>
+            <button type="submit" class="btn btn-primary w-full">লগইন</button>
+            <button type="button" id="forgot-password" class="block w-full text-center text-sm text-stone-500 hover:text-brand-700">পাসওয়ার্ড ভুলে গেছেন?</button>
+          </form>
+
+          <form id="guardian-signup-form" data-panel="signup" class="space-y-4" hidden>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="block sm:col-span-2"><span class="field-label">অভিভাবকের নাম *</span>
+                <input name="name" required maxlength="100" class="field" autocomplete="name"></label>
+              <label class="block"><span class="field-label">শিক্ষার্থীর সাথে সম্পর্ক *</span>
+                <select name="relation" required class="field">
+                  <option value="">নির্বাচন করুন</option>
+                  <option>পিতা</option><option>মাতা</option><option>অন্যান্য অভিভাবক</option>
+                </select></label>
+              <label class="block"><span class="field-label">মোবাইল নম্বর *</span>
+                <input type="tel" name="phone" required maxlength="16" class="field" placeholder="01XXXXXXXXX" autocomplete="tel"></label>
+              <label class="block"><span class="field-label">শিক্ষার্থীর আইডি নম্বর *</span>
+                <input name="studentId" required maxlength="40" class="field" placeholder="আইডি কার্ডে লেখা নম্বর">
+                <span class="mt-1 block text-xs text-stone-400">শিক্ষার্থীর আইডি কার্ড দেখে লিখুন</span></label>
+              <label class="block"><span class="field-label">শিক্ষার্থীর নাম *</span>
+                <input name="studentName" required maxlength="100" class="field"></label>
+              <label class="block sm:col-span-2"><span class="field-label">ইমেইল *</span>
+                <input type="email" name="email" required maxlength="120" class="field" autocomplete="email"></label>
+              <label class="block"><span class="field-label">পাসওয়ার্ড * (কমপক্ষে ৮ অক্ষর)</span>
+                <input type="password" name="password" required minlength="8" class="field" autocomplete="new-password"></label>
+              <label class="block"><span class="field-label">পাসওয়ার্ড আবার লিখুন *</span>
+                <input type="password" name="password2" required minlength="8" class="field" autocomplete="new-password"></label>
+            </div>
+            <div><span class="field-label">মানব-যাচাই</span><div id="signup-turnstile" class="min-h-[65px]"></div></div>
+            <button type="submit" class="btn btn-primary w-full">নিবন্ধন করুন</button>
+            <p class="text-xs leading-relaxed text-stone-500">নিবন্ধনের পর মাদ্রাসা অফিস আপনার দেওয়া শিক্ষার্থীর আইডি ও তথ্য যাচাই করবে। অনুমোদিত অভিভাবক শুধু নিজের সন্তানের তথ্য দেখতে পারবেন।</p>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script type="module">
+      import { initPageLayout } from '/assets/js/components/layout.js';
+      import { initGuardianAuth } from '/assets/js/guardian/auth.js';
+
+      initPageLayout({ activePage: 'guardian', breadcrumbs: [{ label: 'অভিভাবক লগইন' }] });
+      initGuardianAuth();
+    </script>
+  </body>
+</html>

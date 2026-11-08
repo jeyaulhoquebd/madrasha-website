@@ -71,11 +71,23 @@ export const db = dbInstance;
 export const onAuthStateChanged = authMod.onAuthStateChanged || ((_a, cb) => { cb(null); return () => {}; });
 export const signInWithEmailAndPassword = authMod.signInWithEmailAndPassword || notReady;
 export const signOut = authMod.signOut || (async () => {});
+export const createUserWithEmailAndPassword = authMod.createUserWithEmailAndPassword || notReady;
+export const sendPasswordResetEmail = authMod.sendPasswordResetEmail || notReady;
 
 export const collection = fsMod.collection || notReady;
 export const doc = fsMod.doc || notReady;
-export const getDocs = fsMod.getDocs || notReady;
-export const getDoc = fsMod.getDoc || notReady;
+/**
+ * Reads never hang the page: if Firestore does not answer within 8 seconds
+ * (database not created yet, network blocked, etc.) the call rejects and
+ * every page falls back to its default / empty state.
+ */
+const READ_TIMEOUT_MS = 8000;
+const withTimeout = (promise) => Promise.race([
+  promise,
+  new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore did not respond (timeout)')), READ_TIMEOUT_MS))
+]);
+export const getDocs = fsMod.getDocs ? (...a) => withTimeout(fsMod.getDocs(...a)) : notReady;
+export const getDoc = fsMod.getDoc ? (...a) => withTimeout(fsMod.getDoc(...a)) : notReady;
 export const addDoc = fsMod.addDoc || notReady;
 export const setDoc = fsMod.setDoc || notReady;
 export const updateDoc = fsMod.updateDoc || notReady;
@@ -85,7 +97,7 @@ export const where = fsMod.where || notReady;
 export const orderBy = fsMod.orderBy || notReady;
 export const limit = fsMod.limit || notReady;
 export const serverTimestamp = fsMod.serverTimestamp || (() => new Date().toISOString());
-export const getCountFromServer = fsMod.getCountFromServer || notReady;
+export const getCountFromServer = fsMod.getCountFromServer ? (...a) => withTimeout(fsMod.getCountFromServer(...a)) : notReady;
 
 /**
  * Returns true if the signed-in user is an administrator:
