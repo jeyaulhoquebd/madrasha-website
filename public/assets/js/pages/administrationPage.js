@@ -10,12 +10,13 @@ import { renderEmptyState } from '../components/emptyState.js';
 import { renderPageHeader, renderSectionHeading } from '../components/pageHeader.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
+import { cdnImage } from '../utils/cloudinary.js';
 import { getMuhtamim, renderMuhtamimCard } from '../components/muhtamim.js';
 
 function personCard(m) {
   return `
     <div class="card p-5 text-center">
-      <img src="${safeUrl(m.photoUrl, SITE.logoUrl)}" alt="${esc(m.name)}" class="mx-auto h-20 w-20 rounded-full border border-stone-200 object-cover" loading="lazy" />
+      <img src="${safeUrl(cdnImage(m.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(m.name)}" class="mx-auto h-20 w-20 rounded-full border border-stone-200 object-cover" loading="lazy" />
       <h3 class="mt-4 font-semibold text-stone-800">${esc(m.name)}</h3>
       <p class="mt-1 text-sm text-brand-700">${esc(m.designation || '')}</p>
       ${m.description ? `<p class="mt-2 text-xs leading-relaxed text-stone-500">${esc(m.description)}</p>` : ''}
@@ -59,7 +60,7 @@ export async function initAdministrationPage() {
 
     ${principal?.name ? `
       <section class="card mb-14 grid items-center gap-8 p-8 md:grid-cols-[auto_1fr]">
-        <img src="${safeUrl(principal.photoUrl, SITE.logoUrl)}" alt="${esc(principal.name)}" class="mx-auto h-28 w-28 rounded-full border border-stone-200 object-cover" />
+        <img src="${safeUrl(cdnImage(principal.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(principal.name)}" class="mx-auto h-28 w-28 rounded-full border border-stone-200 object-cover" />
         <div>
           <span class="eyebrow">অধ্যক্ষ</span>
           <h2 class="mt-2 text-xl font-semibold text-brand-900">${esc(principal.name)}</h2>

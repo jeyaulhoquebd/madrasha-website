@@ -10,6 +10,7 @@ import { showAlert } from '../components/alert.js';
 import { renderPageHeader, renderSectionHeading } from '../components/pageHeader.js';
 import { esc } from '../utils/escape.js';
 import { photoToDataUrl } from '../utils/image.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { mountTurnstile, verifyHuman, turnstileSlot } from '../components/turnstile.js';
 import { SITE, HIFZ_URL } from '../site.js';
 
@@ -247,6 +248,7 @@ function bindForm() {
   const val = id => document.getElementById(id)?.value.trim() || '';
   const captcha = mountTurnstile(document.getElementById('adm-turnstile'), { action: 'admission' });
   let photo = '';
+  let photoUpload = null;
 
   const currentLevel = () => classSel.selectedOptions[0]?.dataset.level || '';
 
@@ -262,11 +264,17 @@ function bindForm() {
     const file = photoInput.files?.[0];
     if (!file) return;
     try {
+      // Small copy for preview and as a fallback if the Cloudinary upload fails
       photo = await photoToDataUrl(file);
       preview.innerHTML = `<img src="${photo}" alt="শিক্ষার্থীর ছবি" class="h-full w-full object-cover" />`;
       preview.classList.remove('border-dashed', 'border-rose-400');
+      // Save the photo to Cloudinary in the background
+      const fallback = photo;
+      photoUpload = uploadToCloudinary(file, { kind: 'image', folder: 'admissions', maxSide: 800 })
+        .catch(err => { console.warn('[Cloudinary] admission photo:', err.message); return fallback; });
     } catch (e) {
       photo = '';
+      photoUpload = null;
       showAlert({ type: 'error', message: e.message });
     }
   });
@@ -366,6 +374,8 @@ function bindForm() {
       submitBtn.textContent = 'আবেদন জমা দিন';
       return;
     }
+    submitBtn.textContent = 'ছবি আপলোড হচ্ছে...';
+    if (photoUpload) payload.photo = await photoUpload;
     submitBtn.textContent = 'জমা হচ্ছে...';
     try {
       const ref = await addDoc(collection(db, 'admissions'), payload);

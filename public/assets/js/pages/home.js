@@ -10,6 +10,7 @@ import { esc, safeUrl } from '../utils/escape.js';
 import { getGeneralSettings } from '../components/layout.js';
 import { renderNoticeTicker } from '../components/noticeTicker.js';
 import { SITE } from '../site.js';
+import { cdnImage } from '../utils/cloudinary.js';
 import { getMuhtamim, renderMuhtamimCard } from '../components/muhtamim.js';
 
 export const OFFICIAL_HERO_IMAGE_URL = SITE.heroUrl;
@@ -73,7 +74,7 @@ export async function loadPrincipalMessage() {
 
     container.innerHTML = `
       <figure class="card grid items-center gap-8 p-8 sm:p-10 md:grid-cols-[auto_1fr]">
-        <img src="${safeUrl(data.photoUrl, SITE.logoUrl)}" alt="${esc(data.name || 'অধ্যক্ষ')}"
+        <img src="${safeUrl(cdnImage(data.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(data.name || 'অধ্যক্ষ')}"
           class="mx-auto h-28 w-28 rounded-full border border-stone-200 object-cover" loading="lazy" />
         <div>
           <span class="eyebrow">অধ্যক্ষের বাণী</span>
@@ -103,7 +104,7 @@ export async function loadTeacherHighlights() {
 
     container.innerHTML = teachers.map(t => `
       <div class="card p-6 text-center">
-        <img src="${safeUrl(t.photoUrl, SITE.logoUrl)}" alt="${esc(t.name)}" class="mx-auto h-20 w-20 rounded-full border border-stone-200 object-cover" loading="lazy" />
+        <img src="${safeUrl(cdnImage(t.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(t.name)}" class="mx-auto h-20 w-20 rounded-full border border-stone-200 object-cover" loading="lazy" />
         <h3 class="mt-4 font-semibold text-stone-800">${esc(t.name)}</h3>
         <p class="mt-1 text-sm text-brand-700">${esc(t.designation || 'শিক্ষক')}</p>
         ${t.department ? `<p class="mt-1 text-xs text-stone-500">${esc(t.department)}</p>` : ''}

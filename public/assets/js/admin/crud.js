@@ -5,7 +5,7 @@
  * Field types: text | textarea | number | url | email | select | checkbox | date | list
  *   - list:   string array, edited one item per line
  *   - upload: 'image' | 'raw' on a url field adds a Cloudinary upload button
- *             (shown when Cloudinary is configured in Admin → Settings)
+ *             ('raw' accepts an image or PDF). Videos are never uploaded.
  */
 
 import {
@@ -14,7 +14,7 @@ import {
 import { showAlert } from '../components/alert.js';
 import { esc } from '../utils/escape.js';
 import { formatBengaliDate, toBengaliNumber, toMillis } from '../utils/date.js';
-import { getUploadConfig, uploadToCloudinary } from './upload.js';
+import { uploadToCloudinary, pickFile, cdnImage } from '../utils/cloudinary.js';
 import { SITE } from '../site.js';
 
 const ICON_EDIT = '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m16.9 4.1 3 3L8 19H5v-3L16.9 4.1z"/></svg>';
@@ -65,8 +65,10 @@ function fieldHtml(f, value, isNew = true) {
       return `<label class="block ${span}">${label}<input type="number" id="${id}" name="${f.name}" class="field" value="${esc(value ?? f.default ?? '')}" ${req} ${ph} />${help}</label>`;
     default: {
       const type = ['url', 'email'].includes(f.type) ? f.type : 'text';
-      const upload = f.upload ? `<button type="button" data-upload="${f.name}" data-kind="${f.upload}" class="btn btn-outline hidden flex-shrink-0 px-3 text-xs">আপলোড</button>` : '';
-      const preview = f.upload === 'image' ? `<img data-preview="${f.name}" src="${esc(value || '')}" alt="" class="mt-2 h-20 w-20 rounded-lg border border-stone-200 object-cover ${value ? '' : 'hidden'}" />` : '';
+      const upload = f.upload
+        ? `<button type="button" data-upload="${f.name}" data-kind="${f.upload}" class="btn btn-primary flex-shrink-0 px-3 text-xs">${f.upload === 'image' ? 'ছবি আপলোড' : 'ফাইল আপলোড'}</button>`
+        : '';
+      const preview = f.upload === 'image' ? `<img data-preview="${f.name}" src="${esc(value || '')}" alt="" class="mt-2 h-24 w-24 rounded-lg border border-stone-200 object-cover ${value ? '' : 'hidden'}" />` : '';
       return `<label class="block ${span}">${label}<span class="flex gap-2"><input type="${type}" id="${id}" name="${f.name}" class="field" value="${esc(value ?? '')}" maxlength="${f.maxlength || 1000}" ${req} ${ph} />${upload}</span>${help}${preview}</label>`;
     }
   }
@@ -111,6 +113,7 @@ function readForm(form, fields) {
  * @param {string} [cfg.sortField]        default 'createdAt'
  * @param {'asc'|'desc'} [cfg.sortDir]    default 'desc'
  * @param {boolean} [cfg.allowCreate=true]
+ * @param {(file, url)=>object} [cfg.bulkUpload] enables multi-photo upload; returns the new document
  * @param {string} [cfg.idField]          use this field's value as the document ID on create
  * @param {(item)=>string} [cfg.rowLink]   optional extra link per row (e.g. print view)
  * @param {string[]} [cfg.searchFields]
@@ -133,7 +136,10 @@ export function mountCrud(cfg) {
         <h1 class="text-2xl font-bold text-brand-900">${cfg.title}</h1>
         <p class="mt-1 text-sm text-stone-500">${cfg.subtitle || ''}</p>
       </div>
-      ${allowCreate ? `<button type="button" id="crud-add" class="btn btn-primary">+ নতুন ${itemLabel}</button>` : ''}
+      <div class="flex flex-wrap gap-2">
+        ${cfg.bulkUpload ? `<button type="button" id="crud-bulk" class="btn btn-outline">একসাথে অনেক ছবি আপলোড</button>` : ''}
+        ${allowCreate ? `<button type="button" id="crud-add" class="btn btn-primary">+ নতুন ${itemLabel}</button>` : ''}
+      </div>
     </div>
 
     <div class="card">
@@ -198,7 +204,7 @@ export function mountCrud(cfg) {
 
     list.innerHTML = visible.map(it => `
       <div class="flex items-center gap-4 px-5 py-3.5">
-        ${cfg.thumbField ? `<img src="${esc(it[cfg.thumbField] || SITE.logoUrl)}" alt="" class="h-11 w-11 flex-shrink-0 rounded-lg border border-stone-200 bg-stone-50 object-cover" loading="lazy" />` : ''}
+        ${cfg.thumbField ? `<img src="${esc(cdnImage(it[cfg.thumbField], { width: 120 }) || SITE.logoUrl)}" alt="" class="h-11 w-11 flex-shrink-0 rounded-lg border border-stone-200 bg-stone-50 object-cover" loading="lazy" />` : ''}
         <div class="min-w-0 flex-1">
           <p class="truncate font-medium text-stone-800">${cfg.primary(it)}</p>
           ${cfg.secondary ? `<p class="mt-0.5 truncate text-xs text-stone-500">${cfg.secondary(it)}</p>` : ''}
@@ -220,33 +226,35 @@ export function mountCrud(cfg) {
     dialog.showModal();
 
     // Cloudinary upload buttons
-    const uploadCfg = await getUploadConfig();
     form.querySelectorAll('[data-upload]').forEach(btn => {
-      if (!uploadCfg) return;
-      btn.classList.remove('hidden');
-      btn.addEventListener('click', () => {
-        const picker = document.createElement('input');
-        picker.type = 'file';
-        picker.accept = btn.dataset.kind === 'image' ? 'image/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*';
-        picker.onchange = async () => {
-          const file = picker.files?.[0];
-          if (!file) return;
-          btn.disabled = true;
-          btn.textContent = '...';
-          try {
-            const url = await uploadToCloudinary(file, btn.dataset.kind, uploadCfg);
-            form.elements[btn.dataset.upload].value = url;
-            const prev = form.querySelector(`[data-preview="${btn.dataset.upload}"]`);
-            if (prev) { prev.src = url; prev.classList.remove('hidden'); }
-            showAlert({ type: 'success', message: 'ফাইল আপলোড হয়েছে।' });
-          } catch (e) {
-            showAlert({ type: 'error', message: 'আপলোড ব্যর্থ: ' + e.message });
-          } finally {
-            btn.disabled = false;
-            btn.textContent = 'আপলোড';
-          }
-        };
-        picker.click();
+      btn.addEventListener('click', async () => {
+        const isImage = btn.dataset.kind === 'image';
+        const file = await pickFile(isImage ? 'image/*' : 'image/*,application/pdf');
+        if (!file) return;
+        const label = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'আপলোড হচ্ছে...';
+        saveBtn.disabled = true;
+        try {
+          const url = await uploadToCloudinary(file, { kind: isImage ? 'image' : 'document', folder: cfg.collection.split('/')[0] });
+          form.elements[btn.dataset.upload].value = url;
+          const prev = form.querySelector(`[data-preview="${btn.dataset.upload}"]`);
+          if (prev) { prev.src = url; prev.classList.remove('hidden'); }
+          showAlert({ type: 'success', message: 'আপলোড সম্পন্ন হয়েছে।' });
+        } catch (e) {
+          showAlert({ type: 'error', message: 'আপলোড ব্যর্থ: ' + e.message });
+        } finally {
+          btn.disabled = false;
+          btn.textContent = label;
+          saveBtn.disabled = false;
+        }
+      });
+    });
+    // live preview when a link is pasted
+    form.querySelectorAll('[data-preview]').forEach(img => {
+      form.elements[img.dataset.preview]?.addEventListener('change', e => {
+        img.src = e.target.value;
+        img.classList.toggle('hidden', !e.target.value);
       });
     });
   }
@@ -256,7 +264,14 @@ export function mountCrud(cfg) {
     if (!form.reportValidity()) return;
     const isNew = !editing?.id;
     let data = readForm(form, fields);
-    if (cfg.beforeSave) data = cfg.beforeSave(data, isNew, editing) || data;
+    if (cfg.beforeSave) {
+      try {
+        data = cfg.beforeSave(data, isNew, editing) || data;
+      } catch (err) {
+        showAlert({ type: 'error', message: err.message });
+        return;
+      }
+    }
     data.updatedAt = serverTimestamp();
     if (isNew) data.createdAt = serverTimestamp();
 
@@ -308,6 +323,36 @@ export function mountCrud(cfg) {
   });
 
   document.getElementById('crud-add')?.addEventListener('click', () => open({}));
+
+  // Bulk image upload: every picked photo becomes one new document
+  document.getElementById('crud-bulk')?.addEventListener('click', async () => {
+    const files = await pickFile('image/*', true);
+    if (!files?.length) return;
+    const btn = document.getElementById('crud-bulk');
+    const label = btn.textContent;
+    btn.disabled = true;
+    let done = 0;
+    let failed = 0;
+    for (const file of files) {
+      btn.textContent = `আপলোড হচ্ছে ${toBengaliNumber(done + failed + 1)}/${toBengaliNumber(files.length)}...`;
+      try {
+        const url = await uploadToCloudinary(file, { kind: 'image', folder: cfg.collection });
+        await addDoc(collection(db, cfg.collection), {
+          ...cfg.bulkUpload(file, url),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+        done++;
+      } catch (e) {
+        failed++;
+        console.error(e);
+      }
+    }
+    btn.disabled = false;
+    btn.textContent = label;
+    showAlert({ type: failed ? 'warning' : 'success', message: `${toBengaliNumber(done)}টি ছবি যুক্ত হয়েছে${failed ? `, ${toBengaliNumber(failed)}টি ব্যর্থ` : ''}।` });
+    await load();
+  });
   document.getElementById('crud-search').addEventListener('input', e => {
     term = e.target.value.trim().toLowerCase();
     render();

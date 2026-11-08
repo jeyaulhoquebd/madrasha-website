@@ -73,6 +73,9 @@ export const signInWithEmailAndPassword = authMod.signInWithEmailAndPassword || 
 export const signOut = authMod.signOut || (async () => {});
 export const createUserWithEmailAndPassword = authMod.createUserWithEmailAndPassword || notReady;
 export const sendPasswordResetEmail = authMod.sendPasswordResetEmail || notReady;
+export const setPersistence = authMod.setPersistence || (async () => {});
+export const browserLocalPersistence = authMod.browserLocalPersistence;
+export const browserSessionPersistence = authMod.browserSessionPersistence;
 
 export const collection = fsMod.collection || notReady;
 export const doc = fsMod.doc || notReady;

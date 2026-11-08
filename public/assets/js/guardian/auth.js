@@ -11,7 +11,8 @@
 
 import {
   auth, db, doc, getDoc, setDoc, serverTimestamp,
-  signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut
+  signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut,
+  onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence
 } from '../firebase/config.js';
 import { showAlert } from '../components/alert.js';
 import { mountTurnstile, verifyHuman } from '../components/turnstile.js';
@@ -71,11 +72,59 @@ export function initGuardianAuth() {
   show(location.hash === '#signup' ? 'signup' : 'login');
   window.addEventListener('hashchange', () => show(location.hash === '#signup' ? 'signup' : 'login'));
 
+  // Show / hide password
+  document.querySelectorAll('[data-toggle-password]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = btn.parentElement.querySelector('input');
+      const visible = input.type === 'text';
+      input.type = visible ? 'password' : 'text';
+      btn.textContent = visible ? 'দেখুন' : 'লুকান';
+    });
+  });
+
+  // Password strength meter (sign-up)
+  const pw = document.querySelector('#guardian-signup-form [name=password]');
+  const meter = document.getElementById('pw-meter');
+  const hint = document.getElementById('pw-hint');
+  pw?.addEventListener('input', () => {
+    const v = pw.value;
+    const score = [v.length >= 8, /[a-zA-Z]/.test(v) && /\d/.test(v), v.length >= 12 || /[^\w]/.test(v)].filter(Boolean).length;
+    const levels = [
+      ['0%', 'bg-stone-200', 'কমপক্ষে ৮ অক্ষর; অক্ষর ও সংখ্যা মিলিয়ে দিন'],
+      ['33%', 'bg-rose-500', 'দুর্বল পাসওয়ার্ড'],
+      ['66%', 'bg-amber-500', 'মোটামুটি — আরও শক্ত করুন'],
+      ['100%', 'bg-brand-600', 'শক্তিশালী পাসওয়ার্ড']
+    ];
+    const [w, color, text] = levels[v ? Math.max(1, score) : 0];
+    meter.style.width = w;
+    meter.className = `block h-full rounded-full transition-all ${color}`;
+    hint.textContent = text;
+  });
+
+  // Tell the user which field is missing
+  const firstInvalid = (form) => {
+    const el = form.querySelector('input:invalid, select:invalid, textarea:invalid');
+    if (!el) return true;
+    const label = el.closest('label')?.querySelector('.field-label')?.textContent.replace('*', '').trim();
+    showAlert({ type: 'error', message: el.type === 'checkbox' ? 'ঘোষণার ঘরে টিক দিন।' : `"${label || 'প্রয়োজনীয় ঘর'}" সঠিকভাবে পূরণ করুন।` });
+    el.focus();
+    return false;
+  };
+
   if (!auth) {
     notice('Firebase-এর সাথে সংযোগ করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে পাতাটি রিফ্রেশ করুন।', 'error');
     document.querySelectorAll('form button[type="submit"]').forEach(b => { b.disabled = true; });
     return;
   }
+
+  // Already signed in as an approved guardian? Go straight to the dashboard.
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'guardians', user.uid));
+      if (snap.exists() && snap.data().status === 'approved') window.location.replace('/guardian/');
+    } catch { /* stay on the login page */ }
+  });
 
   const loginCaptcha = mountTurnstile(document.getElementById('login-turnstile'), { action: 'guardian-login' });
   const signupCaptcha = mountTurnstile(document.getElementById('signup-turnstile'), { action: 'guardian-signup' });
@@ -84,7 +133,7 @@ export function initGuardianAuth() {
   const loginForm = document.getElementById('guardian-login-form');
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!loginForm.reportValidity()) return;
+    if (!firstInvalid(loginForm)) return;
     const btn = loginForm.querySelector('button[type="submit"]');
     busy(btn, true, 'যাচাই করা হচ্ছে...');
 
@@ -96,7 +145,8 @@ export function initGuardianAuth() {
     }
 
     try {
-      const { user } = await signInWithEmailAndPassword(auth, loginForm.email.value.trim(), loginForm.password.value);
+      await setPersistence(auth, loginForm.remember.checked ? browserLocalPersistence : browserSessionPersistence).catch(() => {});
+      const { user } = await signInWithEmailAndPassword(auth, loginForm.email.value.trim().toLowerCase(), loginForm.password.value);
       const snap = await getDoc(doc(db, 'guardians', user.uid));
       const status = snap.exists() ? snap.data().status : 'missing';
       if (status !== 'approved') {
@@ -129,7 +179,7 @@ export function initGuardianAuth() {
   const signupForm = document.getElementById('guardian-signup-form');
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!signupForm.reportValidity()) return;
+    if (!firstInvalid(signupForm)) return;
     const f = signupForm;
     const phone = toEn(f.phone.value).replace(/[\s-]/g, '').replace(/^\+?88/, '');
     if (!/^01[3-9]\d{8}$/.test(phone)) return showAlert({ type: 'error', message: 'সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)।' });

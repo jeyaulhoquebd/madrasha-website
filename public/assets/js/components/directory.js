@@ -8,6 +8,7 @@ import { renderEmptyState } from './emptyState.js';
 import { esc, safeUrl, } from '../utils/escape.js';
 import { toBengaliNumber } from '../utils/date.js';
 import { SITE } from '../site.js';
+import { cdnImage } from '../utils/cloudinary.js';
 
 /**
  * @param {object} opts
@@ -74,7 +75,7 @@ export function mountDirectory(opts) {
     page = Math.min(page, totalPages);
     grid.innerHTML = list.slice((page - 1) * perPage, page * perPage).map(it => `
       <article class="card p-5 text-center">
-        <img src="${safeUrl(it.photoUrl, SITE.logoUrl)}" alt="${esc(it.name)}" class="mx-auto h-20 w-20 rounded-full border border-stone-200 object-cover" loading="lazy" />
+        <img src="${safeUrl(cdnImage(it.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(it.name)}" class="mx-auto h-20 w-20 rounded-full border border-stone-200 object-cover" loading="lazy" />
         <h3 class="mt-4 font-semibold leading-snug text-stone-800">${esc(it.name)}</h3>
         <p class="mt-1 text-sm text-brand-700">${esc(it.designation || '')}</p>
         ${meta(it)}

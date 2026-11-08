@@ -15,58 +15,114 @@
     <div id="site-header"></div>
 
     <main class="wrap flex-grow py-10 sm:py-14">
-      <div class="mx-auto max-w-lg">
-        <div class="mb-8 text-center">
+      <div class="grid items-start gap-10 lg:grid-cols-5">
+        <!-- Info -->
+        <aside class="lg:col-span-2 lg:pt-6">
           <span class="eyebrow">অভিভাবক কর্নার</span>
-          <h1 class="mt-3 text-3xl font-bold text-brand-900">অভিভাবক লগইন</h1>
-          <p class="mt-2 text-sm leading-relaxed text-stone-600">আপনার সন্তানের তথ্য, পরীক্ষার নম্বর ও ফলাফল দেখতে লগইন করুন। নতুন হলে প্রথমে নিবন্ধন করুন — মাদ্রাসা কর্তৃপক্ষের অনুমোদনের পর লগইন করা যাবে।</p>
-        </div>
+          <h1 class="mt-3 text-3xl font-bold leading-snug text-brand-900">সন্তানের পড়াশোনার খোঁজ এখন অনলাইনে</h1>
+          <p class="mt-3 text-[15px] leading-relaxed text-stone-600">লগইন করে আপনার সন্তানের তথ্য, পরীক্ষার বিষয়ভিত্তিক নম্বর, জিপিএ, মেধাক্রম ও শিক্ষকের মন্তব্য দেখুন।</p>
 
-        <div class="card p-6 sm:p-8">
-          <div role="tablist" class="mb-6 flex rounded-lg border border-stone-200 bg-stone-50 p-1">
-            <button type="button" role="tab" data-tab="login">লগইন</button>
-            <button type="button" role="tab" data-tab="signup">নতুন নিবন্ধন</button>
+          <ol class="mt-8 space-y-5">
+            <li class="flex gap-4">
+              <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white">১</span>
+              <div><p class="font-semibold text-stone-800">নিবন্ধন করুন</p><p class="text-sm text-stone-500">ইমেইল, পাসওয়ার্ড ও শিক্ষার্থীর আইডি কার্ডের নম্বর দিন।</p></div>
+            </li>
+            <li class="flex gap-4">
+              <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white">২</span>
+              <div><p class="font-semibold text-stone-800">অফিসের যাচাই</p><p class="text-sm text-stone-500">মাদ্রাসা অফিস আপনার তথ্য মিলিয়ে অনুমোদন দেবে (সাধারণত ১–২ কর্মদিবস)।</p></div>
+            </li>
+            <li class="flex gap-4">
+              <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white">৩</span>
+              <div><p class="font-semibold text-stone-800">লগইন করুন</p><p class="text-sm text-stone-500">অনুমোদনের পর শুধু আপনার সন্তানের তথ্য দেখতে পাবেন — অন্য কারো নয়।</p></div>
+            </li>
+          </ol>
+
+          <div class="mt-8 rounded-xl bg-brand-50/70 p-4 text-sm text-stone-700">
+            সমস্যা হলে যোগাযোগ করুন: <a href="tel:01309131810" class="link">01309131810</a> ·
+            <a href="mailto:bsjadmkc@gmail.com" class="link">bsjadmkc@gmail.com</a>
           </div>
+        </aside>
 
-          <p id="guardian-notice" class="hidden"></p>
-
-          <form id="guardian-login-form" data-panel="login" class="space-y-4">
-            <label class="block"><span class="field-label">ইমেইল</span>
-              <input type="email" name="email" required autocomplete="username" class="field"></label>
-            <label class="block"><span class="field-label">পাসওয়ার্ড</span>
-              <input type="password" name="password" required autocomplete="current-password" class="field"></label>
-            <div><span class="field-label">মানব-যাচাই</span><div id="login-turnstile" class="min-h-[65px]"></div></div>
-            <button type="submit" class="btn btn-primary w-full">লগইন</button>
-            <button type="button" id="forgot-password" class="block w-full text-center text-sm text-stone-500 hover:text-brand-700">পাসওয়ার্ড ভুলে গেছেন?</button>
-          </form>
-
-          <form id="guardian-signup-form" data-panel="signup" class="space-y-4" hidden>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <label class="block sm:col-span-2"><span class="field-label">অভিভাবকের নাম *</span>
-                <input name="name" required maxlength="100" class="field" autocomplete="name"></label>
-              <label class="block"><span class="field-label">শিক্ষার্থীর সাথে সম্পর্ক *</span>
-                <select name="relation" required class="field">
-                  <option value="">নির্বাচন করুন</option>
-                  <option>পিতা</option><option>মাতা</option><option>অন্যান্য অভিভাবক</option>
-                </select></label>
-              <label class="block"><span class="field-label">মোবাইল নম্বর *</span>
-                <input type="tel" name="phone" required maxlength="16" class="field" placeholder="01XXXXXXXXX" autocomplete="tel"></label>
-              <label class="block"><span class="field-label">শিক্ষার্থীর আইডি নম্বর *</span>
-                <input name="studentId" required maxlength="40" class="field" placeholder="আইডি কার্ডে লেখা নম্বর">
-                <span class="mt-1 block text-xs text-stone-400">শিক্ষার্থীর আইডি কার্ড দেখে লিখুন</span></label>
-              <label class="block"><span class="field-label">শিক্ষার্থীর নাম *</span>
-                <input name="studentName" required maxlength="100" class="field"></label>
-              <label class="block sm:col-span-2"><span class="field-label">ইমেইল *</span>
-                <input type="email" name="email" required maxlength="120" class="field" autocomplete="email"></label>
-              <label class="block"><span class="field-label">পাসওয়ার্ড * (কমপক্ষে ৮ অক্ষর)</span>
-                <input type="password" name="password" required minlength="8" class="field" autocomplete="new-password"></label>
-              <label class="block"><span class="field-label">পাসওয়ার্ড আবার লিখুন *</span>
-                <input type="password" name="password2" required minlength="8" class="field" autocomplete="new-password"></label>
+        <!-- Form card -->
+        <div class="lg:col-span-3">
+          <div class="card mx-auto max-w-xl p-6 sm:p-8">
+            <div role="tablist" class="mb-6 flex rounded-lg border border-stone-200 bg-stone-50 p-1">
+              <button type="button" role="tab" data-tab="login">লগইন</button>
+              <button type="button" role="tab" data-tab="signup">নতুন নিবন্ধন</button>
             </div>
-            <div><span class="field-label">মানব-যাচাই</span><div id="signup-turnstile" class="min-h-[65px]"></div></div>
-            <button type="submit" class="btn btn-primary w-full">নিবন্ধন করুন</button>
-            <p class="text-xs leading-relaxed text-stone-500">নিবন্ধনের পর মাদ্রাসা অফিস আপনার দেওয়া শিক্ষার্থীর আইডি ও তথ্য যাচাই করবে। অনুমোদিত অভিভাবক শুধু নিজের সন্তানের তথ্য দেখতে পারবেন।</p>
-          </form>
+
+            <p id="guardian-notice" class="hidden" role="status"></p>
+
+            <form id="guardian-login-form" data-panel="login" class="space-y-4" novalidate>
+              <label class="block"><span class="field-label">ইমেইল</span>
+                <input type="email" name="email" required autocomplete="username" class="field" placeholder="example@gmail.com"></label>
+              <label class="block"><span class="field-label">পাসওয়ার্ড</span>
+                <span class="relative block">
+                  <input type="password" name="password" required autocomplete="current-password" class="field pr-16">
+                  <button type="button" data-toggle-password class="absolute inset-y-0 right-0 px-3 text-xs font-medium text-stone-500 hover:text-brand-700">দেখুন</button>
+                </span></label>
+              <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center gap-2 text-stone-600"><input type="checkbox" name="remember" checked class="h-4 w-4 accent-brand-700"> মনে রাখুন</label>
+                <button type="button" id="forgot-password" class="text-stone-500 hover:text-brand-700">পাসওয়ার্ড ভুলে গেছেন?</button>
+              </div>
+              <div><span class="field-label">মানব-যাচাই</span><div id="login-turnstile" class="min-h-[65px]"></div></div>
+              <button type="submit" class="btn btn-primary w-full">লগইন</button>
+              <p class="text-center text-sm text-stone-500">অ্যাকাউন্ট নেই? <a href="#signup" class="link">নতুন নিবন্ধন করুন</a></p>
+            </form>
+
+            <form id="guardian-signup-form" data-panel="signup" class="space-y-5" hidden novalidate>
+              <fieldset>
+                <legend class="mb-3 text-sm font-semibold text-brand-800">অভিভাবকের তথ্য</legend>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <label class="block sm:col-span-2"><span class="field-label">অভিভাবকের নাম *</span>
+                    <input name="name" required maxlength="100" class="field" autocomplete="name"></label>
+                  <label class="block"><span class="field-label">শিক্ষার্থীর সাথে সম্পর্ক *</span>
+                    <select name="relation" required class="field">
+                      <option value="">নির্বাচন করুন</option>
+                      <option>পিতা</option><option>মাতা</option><option>অন্যান্য অভিভাবক</option>
+                    </select></label>
+                  <label class="block"><span class="field-label">মোবাইল নম্বর *</span>
+                    <input type="tel" name="phone" required maxlength="16" class="field" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="tel"></label>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend class="mb-3 text-sm font-semibold text-brand-800">শিক্ষার্থীর তথ্য</legend>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <label class="block"><span class="field-label">শিক্ষার্থীর আইডি নম্বর *</span>
+                    <input name="studentId" required maxlength="40" class="field" placeholder="আইডি কার্ডে লেখা নম্বর">
+                    <span class="mt-1 block text-xs text-stone-400">আইডি কার্ড দেখে হুবহু লিখুন</span></label>
+                  <label class="block"><span class="field-label">শিক্ষার্থীর নাম *</span>
+                    <input name="studentName" required maxlength="100" class="field"></label>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend class="mb-3 text-sm font-semibold text-brand-800">লগইনের তথ্য</legend>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <label class="block sm:col-span-2"><span class="field-label">ইমেইল *</span>
+                    <input type="email" name="email" required maxlength="120" class="field" autocomplete="email" placeholder="example@gmail.com"></label>
+                  <label class="block"><span class="field-label">পাসওয়ার্ড *</span>
+                    <span class="relative block">
+                      <input type="password" name="password" required minlength="8" class="field pr-16" autocomplete="new-password">
+                      <button type="button" data-toggle-password class="absolute inset-y-0 right-0 px-3 text-xs font-medium text-stone-500 hover:text-brand-700">দেখুন</button>
+                    </span>
+                    <span class="mt-1.5 block h-1 overflow-hidden rounded-full bg-stone-100"><span id="pw-meter" class="block h-full w-0 rounded-full transition-all"></span></span>
+                    <span id="pw-hint" class="mt-1 block text-xs text-stone-400">কমপক্ষে ৮ অক্ষর; অক্ষর ও সংখ্যা মিলিয়ে দিন</span></label>
+                  <label class="block"><span class="field-label">পাসওয়ার্ড আবার লিখুন *</span>
+                    <input type="password" name="password2" required minlength="8" class="field" autocomplete="new-password"></label>
+                </div>
+              </fieldset>
+
+              <label class="flex items-start gap-3 rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
+                <input type="checkbox" name="agree" required class="mt-1 h-4 w-4 accent-brand-700">
+                <span>আমি নিশ্চিত করছি যে আমি এই শিক্ষার্থীর বৈধ অভিভাবক এবং প্রদত্ত তথ্য সঠিক।</span>
+              </label>
+              <div><span class="field-label">মানব-যাচাই</span><div id="signup-turnstile" class="min-h-[65px]"></div></div>
+              <button type="submit" class="btn btn-primary w-full">নিবন্ধন করুন</button>
+              <p class="text-center text-sm text-stone-500">আগেই নিবন্ধন করেছেন? <a href="#login" class="link">লগইন করুন</a></p>
+            </form>
+          </div>
         </div>
       </div>
     </main>
