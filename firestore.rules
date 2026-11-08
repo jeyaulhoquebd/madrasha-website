@@ -53,14 +53,31 @@ service cloud.firestore {
 
     // ---------- Public submissions (anyone creates, only admins read/manage) ----------
     match /admissions/{id} {
-      allow create: if request.resource.data.keys().hasOnly(['studentName', 'classApplied', 'phone', 'fatherName', 'motherName', 'address', 'previousSchool', 'status', 'createdAt'])
+      allow create: if request.resource.data.keys().hasOnly([
+                        'classApplied', 'level', 'session', 'photo',
+                        'studentName', 'studentNameEn', 'dateOfBirth', 'gender', 'birthRegNo', 'nid', 'bloodGroup',
+                        'fatherName', 'fatherPhone', 'fatherNid', 'fatherOccupation',
+                        'motherName', 'motherPhone', 'motherNid',
+                        'guardianName', 'guardianRelation', 'guardianPhone',
+                        'presentAddress', 'permanentAddress',
+                        'previousSchool', 'previousClass', 'previousResult',
+                        'prevExamRoll', 'prevExamReg', 'prevExamYear', 'prevBoard',
+                        'notes', 'phone', 'status', 'createdAt'])
+                    && request.resource.data.keys().hasAll(['classApplied', 'studentName', 'fatherName', 'fatherPhone', 'motherName', 'birthRegNo', 'photo', 'phone'])
+                    && str('classApplied', 60) && request.resource.data.classApplied.size() > 0
+                    && optStr('level', 20) && optStr('session', 10)
+                    && str('photo', 250000) && request.resource.data.photo.matches('data:image/jpeg;base64,.*')
                     && str('studentName', 100) && request.resource.data.studentName.size() > 0
-                    && str('classApplied', 60)
+                    && optStr('studentNameEn', 100) && optStr('dateOfBirth', 20) && optStr('gender', 10)
+                    && str('birthRegNo', 20) && optStr('nid', 20) && optStr('bloodGroup', 10)
+                    && str('fatherName', 100) && str('fatherPhone', 20) && optStr('fatherNid', 20) && optStr('fatherOccupation', 60)
+                    && str('motherName', 100) && optStr('motherPhone', 20) && optStr('motherNid', 20)
+                    && optStr('guardianName', 100) && optStr('guardianRelation', 40) && optStr('guardianPhone', 20)
+                    && optStr('presentAddress', 300) && optStr('permanentAddress', 300)
+                    && optStr('previousSchool', 150) && optStr('previousClass', 60) && optStr('previousResult', 30)
+                    && optStr('prevExamRoll', 20) && optStr('prevExamReg', 20) && optStr('prevExamYear', 4) && optStr('prevBoard', 60)
+                    && optStr('notes', 500)
                     && str('phone', 20)
-                    && optStr('fatherName', 100)
-                    && optStr('motherName', 100)
-                    && optStr('address', 300)
-                    && optStr('previousSchool', 150)
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
       allow read, update, delete: if isAdmin();

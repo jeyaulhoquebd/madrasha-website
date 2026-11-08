@@ -169,3 +169,12 @@
     scroll-behavior: auto;
   }
 }
+
+/* Print: only the page content (used for the admission summary) */
+@media print {
+  #site-header, #site-footer, #mobile-menu-slot, #global-alert-container, .no-print {
+    display: none !important;
+  }
+  body { background: #fff; }
+  .card { border-color: #d6d3d1; }
+}

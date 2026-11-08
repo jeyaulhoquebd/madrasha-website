@@ -32,6 +32,12 @@ export const SITE = {
   bismillah: 'بِسْمِ ٱللّٰهِ ٱلرَّحْمٰنِ ٱلرَّحِيْمِ'
 };
 
+/** Hifz department has its own website */
+export const HIFZ_URL = 'https://hifjacademy.com/';
+
+/** Website developer credit (footer) */
+export const DEVELOPER = { name: 'Jeyaul Hoque', url: 'https://jeyaulhoque.pages.dev/' };
+
 /** Primary navigation (shared by desktop header and mobile drawer) */
 export const NAV_ITEMS = [
   { key: 'home', label: 'মূলপাতা', url: '/' },
@@ -53,6 +59,7 @@ export const NAV_ITEMS = [
     children: [
       { key: 'academic', label: 'শিক্ষা কার্যক্রম', url: '/academic.html' },
       { key: 'departments', label: 'বিভাগসমূহ', url: '/departments.html' },
+      { key: 'hifz', label: 'হিফজ বিভাগ ↗', url: 'https://hifjacademy.com/', external: true },
       { key: 'routines', label: 'ক্লাস ও পরীক্ষা রুটিন', url: '/routines.html' },
       { key: 'results', label: 'পরীক্ষার ফলাফল', url: '/results.html' }
     ]

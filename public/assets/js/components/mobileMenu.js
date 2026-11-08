@@ -15,7 +15,7 @@ export function renderMobileMenu(activePage = 'home') {
       <div class="pt-3">
         <p class="px-3 pb-1 text-xs font-semibold text-stone-400">${item.label}</p>
         ${item.children.map(child => `
-          <a href="${child.url}" class="block rounded-lg px-3 py-2.5 text-[15px] ${child.key === activePage ? 'bg-brand-50 font-semibold text-brand-800' : 'text-stone-700 hover:bg-stone-50'}">${child.label}</a>
+          <a href="${child.url}" ${child.external ? 'target="_blank" rel="noopener"' : ''} class="block rounded-lg px-3 py-2.5 text-[15px] ${child.key === activePage ? 'bg-brand-50 font-semibold text-brand-800' : 'text-stone-700 hover:bg-stone-50'}">${child.label}</a>
         `).join('')}
       </div>
     `;
