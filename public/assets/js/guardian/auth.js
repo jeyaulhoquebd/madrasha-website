@@ -28,7 +28,10 @@ const AUTH_ERRORS = {
   'auth/weak-password': 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।',
   'auth/too-many-requests': 'অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।',
   'auth/network-request-failed': 'ইন্টারনেট সংযোগ পরীক্ষা করুন।',
-  'auth/operation-not-allowed': 'Firebase-এ Email/Password সাইন-ইন চালু করা নেই।'
+  'auth/operation-not-allowed': 'Firebase-এ Email/Password সাইন-ইন চালু করা নেই।',
+  'auth/configuration-not-found': 'Firebase-এ Email/Password সাইন-ইন চালু করা নেই।',
+  'auth/unauthorized-domain': 'এই ডোমেইনটি Firebase Authentication-এ অনুমোদিত নয়।',
+  'permission-denied': 'সার্ভার অনুমতি দেয়নি (Firestore rules Publish করা আছে কি না দেখুন)।'
 };
 const authMessage = e => AUTH_ERRORS[e?.code] || 'কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।';
 
@@ -50,12 +53,6 @@ function busy(btn, on, label) {
 }
 
 export function initGuardianAuth() {
-  if (!auth) {
-    notice('অনলাইন সেবা এই মুহূর্তে চালু নেই। পরে আবার চেষ্টা করুন।', 'error');
-    document.querySelectorAll('form button[type="submit"]').forEach(b => { b.disabled = true; });
-    return;
-  }
-
   // Tabs
   const tabs = document.querySelectorAll('[data-tab]');
   const panels = document.querySelectorAll('[data-panel]');
@@ -67,8 +64,18 @@ export function initGuardianAuth() {
     });
     panels.forEach(p => { p.hidden = p.dataset.panel !== name; });
   };
-  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
+  tabs.forEach(t => t.addEventListener('click', () => {
+    show(t.dataset.tab);
+    history.replaceState(null, '', t.dataset.tab === 'signup' ? '#signup' : location.pathname);
+  }));
   show(location.hash === '#signup' ? 'signup' : 'login');
+  window.addEventListener('hashchange', () => show(location.hash === '#signup' ? 'signup' : 'login'));
+
+  if (!auth) {
+    notice('Firebase-এর সাথে সংযোগ করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে পাতাটি রিফ্রেশ করুন।', 'error');
+    document.querySelectorAll('form button[type="submit"]').forEach(b => { b.disabled = true; });
+    return;
+  }
 
   const loginCaptcha = mountTurnstile(document.getElementById('login-turnstile'), { action: 'guardian-login' });
   const signupCaptcha = mountTurnstile(document.getElementById('signup-turnstile'), { action: 'guardian-signup' });

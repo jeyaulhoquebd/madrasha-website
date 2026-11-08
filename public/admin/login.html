@@ -48,7 +48,7 @@
       const reason = new URLSearchParams(location.search).get('reason');
 
       if (!auth) {
-        showNotice('ফায়ারবেস এখনও সংযুক্ত করা হয়নি। /assets/js/firebase/config.js ফাইলে প্রজেক্টের তথ্য যুক্ত করার পর লগইন চালু হবে।');
+        showNotice('Firebase-এর সাথে সংযোগ করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে পাতাটি রিফ্রেশ করুন।');
         btn.disabled = true;
       } else if (reason === 'forbidden') {
         showNotice('এই অ্যাকাউন্টের প্রশাসনিক অনুমতি নেই।');

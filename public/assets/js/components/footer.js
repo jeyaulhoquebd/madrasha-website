@@ -50,7 +50,7 @@ export function renderFooter(settings = {}) {
         ${col('শিক্ষার্থী সেবা', [
           ['ভর্তি তথ্য', '/admission.html'],
           ['হিফজ বিভাগ ↗', HIFZ_URL],
-          ['অভিভাবক লগইন', '/guardian/'],
+          ['অভিভাবক লগইন', '/guardian/login.html'],
           ['নোটিশ বোর্ড', '/notices.html'],
           ['পরীক্ষার ফলাফল', '/results.html'],
           ['ক্লাস ও পরীক্ষা রুটিন', '/routines.html'],

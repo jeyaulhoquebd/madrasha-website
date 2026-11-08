@@ -40,7 +40,7 @@ export function renderHeader(settings = {}, activePage = 'home') {
         </a>
 
         <div class="flex items-center gap-2">
-          <a href="/guardian/" class="btn btn-outline hidden px-4 sm:inline-flex ${activePage === 'guardian' ? 'border-brand-500 bg-brand-50' : ''}">অভিভাবক লগইন</a>
+          <a href="/guardian/login.html" class="btn btn-outline px-3 py-2 text-xs sm:px-4 sm:text-sm ${activePage === 'guardian' ? 'border-brand-500 bg-brand-50' : ''}">অভিভাবক<span class="hidden sm:inline">&nbsp;লগইন</span></a>
           <a href="/admission.html" class="btn btn-primary hidden md:inline-flex">ভর্তি তথ্য</a>
           <button
             id="mobile-menu-btn"

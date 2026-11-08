@@ -79,6 +79,9 @@ export async function verifyHuman(token) {
     });
     const data = await res.json().catch(() => ({}));
     if (data.success) return { ok: true };
+    if (res.status === 404) {
+      return { ok: false, message: 'মানব-যাচাই সার্ভার (Cloudflare Pages Function) পাওয়া যায়নি। অফিসে যোগাযোগ করুন।' };
+    }
     if (data.error === 'not-configured') {
       return { ok: false, message: 'সার্ভারে মানব-যাচাই এখনো সেটআপ করা হয়নি (TURNSTILE_SECRET_KEY)। অফিসে যোগাযোগ করুন।' };
     }
