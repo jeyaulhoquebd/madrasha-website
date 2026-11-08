@@ -1,6 +1,6 @@
 /**
  * Footer
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  */
 
 import { SITE } from '../site.js';
@@ -18,6 +18,8 @@ const col = (title, links) => `
 
 export function renderFooter(settings = {}) {
   const address = settings?.address || SITE.address;
+  const phone = settings?.phone || SITE.phone;
+  const email = settings?.email || SITE.email;
   const year = toBengaliNumber(new Date().getFullYear());
 
   return `
@@ -33,7 +35,7 @@ export function renderFooter(settings = {}) {
           </p>
           <dl class="grid grid-cols-2 gap-3 text-xs">
             <div><dt class="text-brand-100/50">ইআইআইএন</dt><dd class="mt-0.5 text-white">${SITE.eiin}</dd></div>
-            <div><dt class="text-brand-100/50">স্তর</dt><dd class="mt-0.5 text-white">${SITE.level}</dd></div>
+            <div><dt class="text-brand-100/50">স্থাপিত</dt><dd class="mt-0.5 text-white">${SITE.established}</dd></div>
           </dl>
         </div>
 
@@ -57,8 +59,8 @@ export function renderFooter(settings = {}) {
           <h4 class="mb-4 text-sm font-semibold text-white">যোগাযোগ</h4>
           <ul class="space-y-2.5 text-sm text-brand-100/70">
             <li id="footer-address">${esc(address)}</li>
-            <li id="footer-phone" class="${settings?.phone ? '' : 'hidden'}">${settings?.phone ? `ফোন: <a class="hover:text-white" href="tel:${esc(settings.phone)}">${esc(settings.phone)}</a>` : ''}</li>
-            <li id="footer-email" class="${settings?.email ? '' : 'hidden'}">${settings?.email ? `ইমেইল: <a class="hover:text-white" href="mailto:${esc(settings.email)}">${esc(settings.email)}</a>` : ''}</li>
+            <li id="footer-phone">ফোন: <a class="hover:text-white" href="tel:${esc(phone)}">${esc(phone)}</a></li>
+            <li id="footer-email">ইমেইল: <a class="hover:text-white" href="mailto:${esc(email)}">${esc(email)}</a></li>
             <li id="footer-social" class="flex gap-3 pt-1">
               ${settings?.facebookUrl ? `<a href="${safeUrl(settings.facebookUrl)}" target="_blank" rel="noopener noreferrer" class="hover:text-white">ফেসবুক</a>` : ''}
               ${settings?.youtubeUrl ? `<a href="${safeUrl(settings.youtubeUrl)}" target="_blank" rel="noopener noreferrer" class="hover:text-white">ইউটিউব</a>` : ''}

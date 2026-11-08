@@ -1,6 +1,6 @@
 /**
  * Generic admin manager: list + search + add / edit / delete for one Firestore collection
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  *
  * Field types: text | textarea | number | url | email | select | checkbox | date | list
  *   - list:   string array, edited one item per line

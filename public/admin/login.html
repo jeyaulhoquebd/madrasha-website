@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>প্রশাসনিক লগইন - খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা</title>
+    <title>প্রশাসনিক লগইন - খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -71,7 +71,7 @@
             await signOut(auth);
             throw { code: 'not-admin' };
           }
-          window.location.replace('/admin/index.html');
+          window.location.replace('/admin/');
         } catch (error) {
           const msg = error.code === 'not-admin' ? 'এই অ্যাকাউন্টের প্রশাসনিক অনুমতি নেই।' : (ERRORS[error.code] || 'লগইন ব্যর্থ হয়েছে।');
           showAlert({ type: 'error', message: msg });

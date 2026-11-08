@@ -1,6 +1,6 @@
 /**
  * Admin layout + authentication guard
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  *
  * Every admin page calls initAdminPage(key). The page body stays hidden until
  * Firebase Auth confirms a signed-in administrator (ADMIN_UIDS in
@@ -12,7 +12,7 @@ import { auth, isAdminUser, onAuthStateChanged, signOut } from '../firebase/conf
 import { SITE } from '../site.js';
 
 const NAV = [
-  ['dashboard', 'ড্যাশবোর্ড', '/admin/index.html'],
+  ['dashboard', 'ড্যাশবোর্ড', '/admin/'],
   ['notices', 'নোটিশ', '/admin/notices.html'],
   ['admissions', 'ভর্তি আবেদন', '/admin/admissions.html'],
   ['messages', 'বার্তা', '/admin/messages.html'],
@@ -32,7 +32,7 @@ export function renderAdminHeader(activeNav = 'dashboard', email = '') {
   return `
     <header class="border-b border-stone-200 bg-white">
       <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <a href="/admin/index.html" class="flex items-center gap-3">
+        <a href="/admin/" class="flex items-center gap-3">
           <img src="${SITE.logoUrl}" alt="" class="h-9 w-9 rounded-full border border-stone-200 object-contain" />
           <span class="leading-tight">
             <span class="block text-sm font-semibold text-brand-900">প্রশাসনিক প্যানেল</span>

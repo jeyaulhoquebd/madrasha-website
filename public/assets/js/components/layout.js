@@ -1,6 +1,6 @@
 /**
  * Page Layout Engine
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  */
 
 import { renderHeader } from './header.js';
@@ -84,7 +84,8 @@ export function updateLayoutSettings(settings = {}) {
 
   if (settings.phone) {
     const phone = esc(settings.phone);
-    set('header-phone', `ফোন: <a class="text-white hover:underline" href="tel:${phone}">${phone}</a>`);
+    const hp = document.getElementById('header-phone');
+    if (hp) hp.innerHTML = `ফোন: <a class="text-white hover:underline" href="tel:${phone}">${phone}</a>`;
     set('footer-phone', `ফোন: <a class="hover:text-white" href="tel:${phone}">${phone}</a>`);
   }
   if (settings.email) {

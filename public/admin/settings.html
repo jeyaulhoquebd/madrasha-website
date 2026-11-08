@@ -11,17 +11,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/output.css">
   </head>
-  <body class="flex min-h-screen flex-col bg-ivory">
+  <body class="invisible flex min-h-screen flex-col bg-ivory">
     <div id="admin-header-slot"></div>
 
     <main class="mx-auto w-full max-w-4xl flex-grow space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       <div>
         <h1 class="text-2xl font-bold text-brand-900">সেটিংস</h1>
-        <p class="mt-1 text-sm text-stone-500">এখানের তথ্য সরাসরি ওয়েবসাইটে দেখা যাবে। কোনো ঘর খালি রাখলে সেটি ওয়েবসাইটে দেখানো হবে না।</p>
+        <p class="mt-1 text-sm text-stone-500">এখানের তথ্য সরাসরি ওয়েবসাইটে দেখা যাবে। ফোন, ইমেইল বা ঠিকানা খালি রাখলে সরকারি EIIN তালিকার তথ্য দেখাবে।</p>
       </div>
 
       <nav class="flex flex-wrap gap-2" aria-label="সেটিংস বিভাগ">
         <a href="#general" class="chip">যোগাযোগ</a>
+        <a href="#muhtamim" class="chip">মুহতামিম</a>
         <a href="#principal" class="chip">অধ্যক্ষের বাণী</a>
         <a href="#admission" class="chip">ভর্তি</a>
         <a href="#about" class="chip">পরিচিতি</a>
@@ -32,9 +33,9 @@
         <h2 class="text-lg font-semibold text-brand-900">যোগাযোগের তথ্য</h2>
         <div class="grid gap-5 sm:grid-cols-2">
           <label class="block sm:col-span-2"><span class="field-label">ঠিকানা</span>
-            <input name="address" maxlength="200" class="field" placeholder="জেল রোড, খাগড়াছড়ি সদর, খাগড়াছড়ি পার্বত্য জেলা"></label>
-          <label class="block"><span class="field-label">ফোন নম্বর</span><input type="tel" name="phone" maxlength="30" class="field"></label>
-          <label class="block"><span class="field-label">ইমেইল</span><input type="email" name="email" maxlength="120" class="field"></label>
+            <input name="address" maxlength="200" class="field" placeholder="বায়তুশ শরফ রোড, আরামবাগ, খাগড়াছড়ি সদর, খাগড়াছড়ি – ৪৪০০"></label>
+          <label class="block"><span class="field-label">ফোন নম্বর</span><input type="tel" name="phone" maxlength="30" class="field" placeholder="01309131810"></label>
+          <label class="block"><span class="field-label">ইমেইল</span><input type="email" name="email" maxlength="120" class="field" placeholder="bsjadmkc@gmail.com"></label>
           <label class="block"><span class="field-label">অফিস সময়</span><input name="officeHours" maxlength="100" class="field" placeholder="শনি – বৃহস্পতি, সকাল ৯টা – বিকাল ৪টা"></label>
           <label class="block"><span class="field-label">ডেভেলপার ক্রেডিট</span><input name="developerCredit" maxlength="100" class="field"></label>
           <label class="block"><span class="field-label">ফেসবুক পেজ</span><input type="url" name="facebookUrl" maxlength="300" class="field" placeholder="https://facebook.com/..."></label>
@@ -42,6 +43,18 @@
           <label class="block sm:col-span-2"><span class="field-label">গুগল ম্যাপ এম্বেড লিংক</span>
             <input type="url" name="mapEmbedUrl" maxlength="1500" class="field" placeholder="https://www.google.com/maps/embed?pb=...">
             <span class="mt-1 block text-xs text-stone-400">Google Maps → Share → Embed a map → শুধু src="..." এর ভেতরের লিংকটি দিন।</span></label>
+        </div>
+        <div class="flex justify-end border-t border-stone-100 pt-5"><button type="submit" class="btn btn-primary">সংরক্ষণ</button></div>
+      </form>
+
+      <form data-doc="muhtamim" id="muhtamim" class="card scroll-mt-6 space-y-5 p-6 sm:p-8">
+        <h2 class="text-lg font-semibold text-brand-900">মুহতামিম</h2>
+        <p class="-mt-3 text-sm text-stone-500">হোমপেজ ও প্রশাসন পাতায় দেখাবে। ছবির লিংক খালি রাখলে বর্তমান ছবিটিই থাকবে।</p>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="block"><span class="field-label">নাম</span><input name="name" maxlength="100" class="field" placeholder="যেমন: মাওলানা ..."></label>
+          <label class="block"><span class="field-label">পদবি</span><input name="designation" maxlength="100" class="field" placeholder="মুহতামিম"></label>
+          <label class="block sm:col-span-2"><span class="field-label">ছবির লিংক (ঐচ্ছিক)</span><input type="url" name="photoUrl" maxlength="1000" class="field"></label>
+          <label class="block sm:col-span-2"><span class="field-label">বাণী</span><textarea name="message" rows="5" maxlength="3000" class="field"></textarea></label>
         </div>
         <div class="flex justify-end border-t border-stone-100 pt-5"><button type="submit" class="btn btn-primary">সংরক্ষণ</button></div>
       </form>

@@ -1,22 +1,34 @@
 /**
  * Verified institutional constants (single source of truth)
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  *
- * Only verified facts belong here. Contact details (phone / email / social
- * links) are intentionally NOT hard-coded: they are loaded from Firestore
- * (settings/general) and are simply hidden until an administrator adds them.
+ * Only verified facts belong here. Phone / email below come from the public
+ * EIIN registry and can be overridden from Admin → Settings (settings/general).
  */
 
 export const SITE = {
-  name: 'খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা',
+  name: 'খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা',
   shortName: 'বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল মাদ্রাসা',
   englishName: 'Khagrachhari Baitush Sharaf Jabbaria Adarsha Fazil (Degree) Madrasah',
-  eiin: '১৩১৩২৫',
-  established: '১৯৯৮',
-  level: 'ফাজিল (ডিগ্রী)',
-  address: 'জেল রোড, খাগড়াছড়ি সদর, খাগড়াছড়ি পার্বত্য জেলা',
+
+  // Source: institution.bd/eiin/131810 (government institution registry)
+  eiin: '১৩১৮১০',
+  established: '১৯৯১',
+  establishedFull: '১ জানুয়ারি ১৯৯১',
+  level: 'ফাজিল (পাস)',
+  type: 'আলিয়া মাদ্রাসা',
+  management: 'বেসরকারি',
+  gender: 'সহশিক্ষা (ছাত্র-ছাত্রী)',
+  status: 'চলমান',
+  address: 'বায়তুশ শরফ রোড, আরামবাগ, খাগড়াছড়ি সদর, খাগড়াছড়ি – ৪৪০০',
+  addressDetail: 'আরামবাগ মৌজা, খাগড়াছড়ি পৌরসভা (ওয়ার্ড নং ৩), খাগড়াছড়ি সদর উপজেলা',
+  email: 'bsjadmkc@gmail.com',
+  phone: '01309131810',
+  mapQuery: 'Baitush Sharaf Road, Arambagh, Khagrachhari',
+
   logoUrl: 'https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg',
   heroUrl: 'https://res.cloudinary.com/edsn06rr/image/upload/v1793898407/a1a9d6b9-0f63-4ca4-bb47-8a8fc27dd326.png',
+  muhtamimPhoto: '/assets/images/muhtamim.jpg',
   bismillah: 'بِسْمِ ٱللّٰهِ ٱلرَّحْمٰنِ ٱلرَّحِيْمِ'
 };
 
