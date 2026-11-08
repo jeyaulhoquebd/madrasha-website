@@ -36,7 +36,7 @@ export function renderMobileMenu(activePage = 'home') {
       <nav class="flex-1 overflow-y-auto p-3">${links}</nav>
       <div class="space-y-2 border-t border-stone-100 p-4">
         <a href="/admission.html" class="btn btn-primary w-full">ভর্তি তথ্য</a>
-        <a href="/guardian/" class="btn btn-outline w-full">অভিভাবক লগইন</a>
+        <a href="/guardian/login.html" class="btn btn-outline w-full">অভিভাবক লগইন / নিবন্ধন</a>
       </div>
     </aside>
   `;
