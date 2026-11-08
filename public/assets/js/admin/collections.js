@@ -192,31 +192,44 @@ export const COLLECTIONS = {
   gallery: {
     collection: 'gallery',
     title: 'গ্যালারি',
-    subtitle: 'ছবি বা ইউটিউব ভিডিও যুক্ত করুন।',
+    subtitle: 'ছবি সরাসরি আপলোড করুন (Cloudinary-তে সংরক্ষিত হবে)। ভিডিও আপলোড বন্ধ — ভিডিওর জন্য YouTube বা Facebook লিংক দিন।',
     itemLabel: 'আইটেম',
     thumbField: 'imageUrl',
+    bulkUpload: (file, url) => ({
+      title: file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').slice(0, 150),
+      type: 'image',
+      category: 'campus',
+      imageUrl: url,
+      description: ''
+    }),
     fields: [
-      { name: 'title', label: 'শিরোনাম', required: true, full: true, maxlength: 150 },
       { name: 'type', label: 'ধরন', type: 'select', required: true, default: 'image', options: [
-        { value: 'image', label: 'ছবি' }, { value: 'video', label: 'ভিডিও' }
+        { value: 'image', label: 'ছবি' }, { value: 'video', label: 'ভিডিও (YouTube / Facebook লিংক)' }
       ] },
       { name: 'category', label: 'ক্যাটাগরি', type: 'select', default: 'campus', options: [
         { value: 'campus', label: 'ক্যাম্পাস' }, { value: 'events', label: 'অনুষ্ঠান' }, { value: 'sports', label: 'ক্রীড়া ও সাংস্কৃতিক' }
       ] },
-      { name: 'imageUrl', label: 'ছবির লিংক (ছবির জন্য)', type: 'url', upload: 'image', full: true },
-      { name: 'videoUrl', label: 'ভিডিও লিংক (ইউটিউব)', type: 'url', full: true },
-      { name: 'thumbnailUrl', label: 'ভিডিওর থাম্বনেইল লিংক', type: 'url', upload: 'image', full: true },
+      { name: 'title', label: 'শিরোনাম', required: true, full: true, maxlength: 150 },
+      { name: 'imageUrl', label: 'ছবি', type: 'url', upload: 'image', full: true, help: 'ছবির জন্য "ছবি আপলোড" চাপুন। ভিডিওর ক্ষেত্রে খালি রাখলে থাম্বনেইল নিজে থেকে বসবে।' },
+      { name: 'videoUrl', label: 'ভিডিও লিংক', type: 'url', full: true, placeholder: 'https://www.youtube.com/watch?v=... অথবা https://www.facebook.com/.../videos/...' },
       { name: 'description', label: 'বিবরণ', full: true, maxlength: 300 }
     ],
     beforeSave: d => {
-      // Auto thumbnail for YouTube links
-      const yt = /(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/.exec(d.videoUrl || '');
-      if (d.type === 'video' && yt && !d.thumbnailUrl) d.thumbnailUrl = `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
-      if (d.type === 'video' && !d.imageUrl) d.imageUrl = d.thumbnailUrl || '';
+      if (d.type === 'video') {
+        const url = d.videoUrl || '';
+        const isYoutube = /(youtube\.com|youtu\.be)\//.test(url);
+        const isFacebook = /(facebook\.com|fb\.watch)\//.test(url);
+        if (!isYoutube && !isFacebook) throw new Error('ভিডিওর জন্য সঠিক YouTube বা Facebook লিংক দিন');
+        const yt = /(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([\w-]{11})/.exec(url);
+        if (yt && !d.imageUrl) d.imageUrl = `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
+        d.thumbnailUrl = d.imageUrl || '';
+      } else if (!d.imageUrl) {
+        throw new Error('ছবি আপলোড করুন অথবা ছবির লিংক দিন');
+      }
       return d;
     },
     primary: g => esc(g.title),
-    secondary: g => join(g.type === 'video' ? 'ভিডিও' : 'ছবি', esc(g.category))
+    secondary: g => join(g.type === 'video' ? (/facebook|fb\.watch/.test(g.videoUrl || '') ? 'Facebook ভিডিও' : 'YouTube ভিডিও') : 'ছবি', esc({ campus: 'ক্যাম্পাস', events: 'অনুষ্ঠান', sports: 'ক্রীড়া' }[g.category] || g.category))
   },
 
   calendar: {

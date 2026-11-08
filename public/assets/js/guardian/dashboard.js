@@ -5,11 +5,12 @@
  */
 
 import {
-  auth, db, doc, getDoc, getDocs, collection, query, where, onAuthStateChanged, signOut
+  auth, db, doc, getDoc, getDocs, collection, query, where, onAuthStateChanged, signOut, sendPasswordResetEmail
 } from '../firebase/config.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { formatBengaliDate, toBengaliNumber, sortByDateDesc } from '../utils/date.js';
 import { SITE } from '../site.js';
+import { cdnImage } from '../utils/cloudinary.js';
 
 const n = v => (v === undefined || v === null || v === '' ? '—' : esc(typeof v === 'number' ? toBengaliNumber(v) : v));
 
@@ -23,7 +24,7 @@ function studentCard(st) {
   return `
     <section class="card overflow-hidden">
       <div class="flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:p-8">
-        <img src="${safeUrl(st.photoUrl, SITE.logoUrl)}" alt="${esc(st.name)}" class="h-36 w-28 flex-shrink-0 rounded-lg border border-stone-200 object-cover" />
+        <img src="${safeUrl(cdnImage(st.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(st.name)}" class="h-36 w-28 flex-shrink-0 rounded-lg border border-stone-200 object-cover" />
         <div class="min-w-0 flex-1">
           <span class="eyebrow">শিক্ষার্থীর তথ্য</span>
           <h2 class="mt-2 text-2xl font-bold text-brand-900">${esc(st.name)}</h2>
@@ -126,6 +127,7 @@ export function initGuardianDashboard() {
         </div>
         <div class="no-print flex gap-2">
           <button type="button" onclick="window.print()" class="btn btn-outline">প্রিন্ট</button>
+          <button type="button" id="guardian-reset-pw" class="btn btn-outline">পাসওয়ার্ড পরিবর্তন</button>
           <button type="button" id="guardian-logout" class="btn btn-outline text-rose-700">লগআউট</button>
         </div>
       </div>
@@ -133,6 +135,15 @@ export function initGuardianDashboard() {
         ? `<div class="space-y-8">${students.map(studentCard).join('')}</div>`
         : `<div class="card p-8 text-center text-sm text-stone-600">আপনার অ্যাকাউন্টের সাথে এখনো কোনো শিক্ষার্থীর তথ্য যুক্ত করা হয়নি। মাদ্রাসা অফিসে (${SITE.phone}) যোগাযোগ করুন।</div>`}
     `;
+    document.getElementById('guardian-reset-pw').addEventListener('click', async (e) => {
+      e.target.disabled = true;
+      try {
+        await sendPasswordResetEmail(auth, user.email);
+        e.target.textContent = 'ইমেইলে লিংক পাঠানো হয়েছে';
+      } catch {
+        e.target.disabled = false;
+      }
+    });
     document.getElementById('guardian-logout').addEventListener('click', async () => {
       await signOut(auth);
       toLogin();

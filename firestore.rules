@@ -75,7 +75,8 @@ service cloud.firestore {
                     && request.resource.data.keys().hasAll(['classApplied', 'studentName', 'fatherName', 'fatherPhone', 'motherName', 'birthRegNo', 'photo', 'phone'])
                     && str('classApplied', 60) && request.resource.data.classApplied.size() > 0
                     && optStr('level', 20) && optStr('session', 10)
-                    && str('photo', 250000) && request.resource.data.photo.matches('data:image/jpeg;base64,.*')
+                    && ((str('photo', 250000) && request.resource.data.photo.matches('data:image/jpeg;base64,.*'))
+                        || (str('photo', 500) && request.resource.data.photo.matches('https://res[.]cloudinary[.]com/ouertwph/image/upload/.*')))
                     && str('studentName', 100) && request.resource.data.studentName.size() > 0
                     && optStr('studentNameEn', 100) && optStr('dateOfBirth', 20) && optStr('gender', 10)
                     && str('birthRegNo', 20) && optStr('nid', 20) && optStr('bloodGroup', 10)
