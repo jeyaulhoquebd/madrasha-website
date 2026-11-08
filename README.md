@@ -101,16 +101,18 @@ npm run dev         # http://localhost:3000
 
 ## 🔥 ফায়ারবেস সংযোগ (Firebase Setup)
 
-1. Firebase Console-এ একটি প্রজেক্ট তৈরি করে **Web App** যুক্ত করুন।
-2. প্রাপ্ত কনফিগারেশন `public/assets/js/firebase/config.js` ফাইলের `firebaseConfig` অবজেক্টে বসান।
+1. Firebase প্রজেক্ট: **`kbsjafm`** — কনফিগারেশন `public/assets/js/firebase/config.js` ফাইলে যুক্ত করা আছে।
+2. Authentication → Settings → **Authorized domains**-এ ওয়েবসাইটের ডোমেইন (যেমন `xxxx.pages.dev`) যোগ করুন, নাহলে এডমিন লগইন কাজ করবে না।
    কনফিগারেশন খালি থাকলে সাইট "স্ট্যান্ডবাই মোডে" চলে — গুগলে কোনো রিকোয়েস্ট যায় না, কনসোলে কোনো এরর আসে না, এবং প্রতিটি পাতায় মার্জিত খালি অবস্থা দেখায়।
 3. **Authentication → Email/Password** চালু করে এডমিন ব্যবহারকারী তৈরি করুন।
 4. প্রধান এডমিন: UID `8ALeLYl29me8iozWeTVFoe0FIJ63` — এটি `firestore.rules` (`isAdmin()`) এবং
    `public/assets/js/firebase/config.js` (`ADMIN_UIDS`) দুই জায়গাতেই যুক্ত আছে।
    নতুন এডমিন যোগ করতে দুই জায়গায় UID যোগ করুন, অথবা Console থেকে `admins/{UID}` ডকুমেন্ট তৈরি করুন।
    নিরাপত্তার কারণে ওয়েবসাইট থেকে `admins` কালেকশনে লেখা সম্পূর্ণ নিষিদ্ধ।
-5. নিয়ম ও ইনডেক্স ডেপ্লয় করুন: `firebase deploy --only firestore,hosting`
-6. এডমিন প্যানেলের **সেটিংস** পাতা থেকে ফোন, ইমেইল, অফিস সময়, ফেসবুক/ইউটিউব ও গুগল ম্যাপ লিংক যুক্ত করুন।
+5. নিয়ম ডেপ্লয় করুন: Firebase Console → Firestore → Rules-এ `firestore.rules` ফাইলের লেখা বসিয়ে Publish করুন (অথবা `firebase deploy --only firestore:rules`)। কোনো কম্পোজিট ইনডেক্সের প্রয়োজন নেই।
+6. `/admin/login.html` থেকে লগইন করে **সেটিংস** পাতায় ফোন, ইমেইল, অধ্যক্ষের বাণী, ভর্তির তথ্য ইত্যাদি দিন।
+7. এডমিন প্যানেল থেকে নোটিশ, শিক্ষক, কর্মচারী, পরিচালনা পর্ষদ, বিভাগ, ফলাফল, রুটিন, ক্যালেন্ডার, ডাউনলোড ও গ্যালারি যোগ/সম্পাদনা/মুছে ফেলা যায়; ভর্তি আবেদন ও বার্তা দেখা ও ব্যবস্থাপনা করা যায়।
+8. (ঐচ্ছিক) সেটিংস → ফাইল আপলোড-এ Cloudinary cloud name ও unsigned preset দিলে ফর্মে সরাসরি ছবি/PDF আপলোড বাটন আসবে।
 
 ### Firestore কালেকশন
 | কালেকশন | ব্যবহার |

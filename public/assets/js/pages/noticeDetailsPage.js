@@ -3,8 +3,8 @@
  * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
  */
 
-import { db, doc, getDoc, collection, getDocs, query, limit, where, orderBy } from '../firebase/config.js';
-import { formatBengaliDate } from '../utils/date.js';
+import { db, doc, getDoc, collection, getDocs, query, where } from '../firebase/config.js';
+import { formatBengaliDate, sortByDateDesc } from '../utils/date.js';
 import { renderEmptyState } from '../components/emptyState.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
@@ -26,8 +26,9 @@ export async function initNoticeDetailsPage() {
     try {
       const snap = await getDoc(doc(db, 'notices', noticeId));
       if (snap.exists() && snap.data().isPublished) notice = { id: snap.id, ...snap.data() };
-      const rel = await getDocs(query(collection(db, 'notices'), where('isPublished', '==', true), orderBy('publishedAt', 'desc'), limit(5)));
+      const rel = await getDocs(query(collection(db, 'notices'), where('isPublished', '==', true)));
       rel.forEach(d => { if (d.id !== noticeId) related.push({ id: d.id, ...d.data() }); });
+      sortByDateDesc(related, 'publishedAt');
     } catch (e) {
       console.warn('[Firestore] notice details:', e.message);
     }

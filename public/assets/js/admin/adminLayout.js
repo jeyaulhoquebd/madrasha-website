@@ -14,12 +14,15 @@ import { SITE } from '../site.js';
 const NAV = [
   ['dashboard', 'ড্যাশবোর্ড', '/admin/index.html'],
   ['notices', 'নোটিশ', '/admin/notices.html'],
+  ['admissions', 'ভর্তি আবেদন', '/admin/admissions.html'],
+  ['messages', 'বার্তা', '/admin/messages.html'],
   ['teachers', 'শিক্ষক', '/admin/teachers.html'],
   ['staff', 'কর্মচারী', '/admin/staff.html'],
+  ['administration', 'পরিচালনা পর্ষদ', '/admin/administration.html'],
   ['departments', 'বিভাগ', '/admin/departments.html'],
-  ['admissions', 'ভর্তি আবেদন', '/admin/admissions.html'],
   ['results', 'ফলাফল', '/admin/results.html'],
   ['routines', 'রুটিন', '/admin/routines.html'],
+  ['calendar', 'ক্যালেন্ডার', '/admin/calendar.html'],
   ['downloads', 'ডাউনলোড', '/admin/downloads.html'],
   ['gallery', 'গ্যালারি', '/admin/gallery.html'],
   ['settings', 'সেটিংস', '/admin/settings.html']

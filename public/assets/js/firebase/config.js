@@ -11,12 +11,14 @@
  */
 
 export const firebaseConfig = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: ''
+  apiKey: 'AIzaSyDsAKi3WN4wcYg6VlqKTezFdZ2MiGXF8nI',
+  authDomain: 'kbsjafm.firebaseapp.com',
+  databaseURL: 'https://kbsjafm-default-rtdb.firebaseio.com',
+  projectId: 'kbsjafm',
+  storageBucket: 'kbsjafm.firebasestorage.app',
+  messagingSenderId: '1098656776179',
+  appId: '1:1098656776179:web:fef7c35e90812b1232dc86',
+  measurementId: 'G-YFZSRWPDBX'
 };
 
 /**
@@ -83,6 +85,7 @@ export const where = fsMod.where || notReady;
 export const orderBy = fsMod.orderBy || notReady;
 export const limit = fsMod.limit || notReady;
 export const serverTimestamp = fsMod.serverTimestamp || (() => new Date().toISOString());
+export const getCountFromServer = fsMod.getCountFromServer || notReady;
 
 /**
  * Returns true if the signed-in user is an administrator:

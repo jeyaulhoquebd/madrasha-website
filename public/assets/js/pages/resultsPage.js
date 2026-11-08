@@ -5,8 +5,8 @@
  * Only aggregate, institution-approved result documents are published (no private student data).
  */
 
-import { db, collection, getDocs, query, orderBy, where } from '../firebase/config.js';
-import { formatBengaliDate, toBengaliNumber } from '../utils/date.js';
+import { db, collection, getDocs, query, where } from '../firebase/config.js';
+import { formatBengaliDate, toBengaliNumber, sortByDateDesc } from '../utils/date.js';
 import { renderEmptyState } from '../components/emptyState.js';
 import { renderPageHeader } from '../components/pageHeader.js';
 import { esc, safeUrl } from '../utils/escape.js';
@@ -24,8 +24,9 @@ export async function initResultsPage() {
   allResults = [];
   if (db) {
     try {
-      const snap = await getDocs(query(collection(db, 'results'), where('isPublished', '==', true), orderBy('publishedAt', 'desc')));
+      const snap = await getDocs(query(collection(db, 'results'), where('isPublished', '==', true)));
       snap.forEach(d => allResults.push({ id: d.id, ...d.data() }));
+      sortByDateDesc(allResults, 'publishedAt');
     } catch (e) {
       console.warn('[Firestore] results:', e.message);
     }
