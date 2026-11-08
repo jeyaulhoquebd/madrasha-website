@@ -14,7 +14,7 @@
     <div class="w-full max-w-sm">
       <div class="mb-8 text-center">
         <img src="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" alt="" class="mx-auto h-16 w-16 rounded-full border border-stone-200 bg-white object-contain" />
-        <h1 class="mt-4 text-xl font-bold text-brand-900">প্রশাসনিক লগইন</h1>
+        <h1 class="mt-4 text-xl font-bold text-brand-900">এডমিন / মডারেটর লগইন</h1>
         <p class="mt-1 text-sm text-stone-500">বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল মাদ্রাসা</p>
       </div>
 
@@ -35,7 +35,7 @@
     </div>
 
     <script type="module">
-      import { auth, isAdminUser, signInWithEmailAndPassword, signOut } from '/assets/js/firebase/config.js';
+      import { auth, getStaffRole, signInWithEmailAndPassword, signOut } from '/assets/js/firebase/config.js';
       import { showAlert } from '/assets/js/components/alert.js';
       import { mountTurnstile, verifyHuman } from '/assets/js/components/turnstile.js';
       const captcha = mountTurnstile(document.getElementById('admin-turnstile'), { action: 'admin-login' });
@@ -52,6 +52,15 @@
         btn.disabled = true;
       } else if (reason === 'forbidden') {
         showNotice('এই অ্যাকাউন্টের প্রশাসনিক অনুমতি নেই।');
+      } else if (reason === 'disabled') {
+        showNotice('এই মডারেটর অ্যাকাউন্টটি বন্ধ করা হয়েছে। এডমিনের সাথে যোগাযোগ করুন।');
+      }
+
+      // Login link for moderators: /admin/login.html?email=...
+      const presetEmail = new URLSearchParams(location.search).get('email');
+      if (presetEmail) {
+        document.getElementById('admin-email').value = presetEmail;
+        document.getElementById('admin-password').focus();
       }
 
       const ERRORS = {
@@ -78,13 +87,20 @@
         }
         try {
           const { user } = await signInWithEmailAndPassword(auth, document.getElementById('admin-email').value.trim(), document.getElementById('admin-password').value);
-          if (!(await isAdminUser(user))) {
+          const role = await getStaffRole(user);
+          if (role?.role === 'disabled') {
+            await signOut(auth);
+            throw { code: 'disabled' };
+          }
+          if (!role) {
             await signOut(auth);
             throw { code: 'not-admin' };
           }
           window.location.replace('/admin/');
         } catch (error) {
-          const msg = error.code === 'not-admin' ? 'এই অ্যাকাউন্টের প্রশাসনিক অনুমতি নেই।' : (ERRORS[error.code] || 'লগইন ব্যর্থ হয়েছে।');
+          const msg = error.code === 'not-admin' ? 'এই অ্যাকাউন্টের প্রশাসনিক অনুমতি নেই।'
+            : error.code === 'disabled' ? 'এই মডারেটর অ্যাকাউন্টটি বন্ধ করা হয়েছে।'
+            : (ERRORS[error.code] || 'লগইন ব্যর্থ হয়েছে।');
           showAlert({ type: 'error', message: msg });
           captcha.reset();
           btn.disabled = false;

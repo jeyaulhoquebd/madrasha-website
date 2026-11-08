@@ -23,14 +23,14 @@
       <section id="dash-stats" class="grid grid-cols-2 gap-4 lg:grid-cols-4"></section>
 
       <section class="grid gap-6 lg:grid-cols-2">
-        <div class="card">
+        <div class="card" id="dash-admissions-card">
           <div class="flex items-center justify-between border-b border-stone-100 px-5 py-4">
             <h2 class="font-semibold text-brand-900">সাম্প্রতিক ভর্তি আবেদন</h2>
             <a href="/admin/admissions.html" class="text-xs font-semibold text-brand-700 hover:underline">সব দেখুন</a>
           </div>
           <div id="dash-admissions" class="divide-y divide-stone-100"><p class="px-5 py-8 text-center text-sm text-stone-400">লোড হচ্ছে...</p></div>
         </div>
-        <div class="card">
+        <div class="card" id="dash-messages-card">
           <div class="flex items-center justify-between border-b border-stone-100 px-5 py-4">
             <h2 class="font-semibold text-brand-900">সাম্প্রতিক বার্তা</h2>
             <a href="/admin/messages.html" class="text-xs font-semibold text-brand-700 hover:underline">সব দেখুন</a>
@@ -46,21 +46,28 @@
     </main>
 
     <script type="module">
-      import { initAdminPage } from '/assets/js/admin/adminLayout.js';
+      import { initAdminPage, can, getCurrentRole } from '/assets/js/admin/adminLayout.js';
+      import { showAlert } from '/assets/js/components/alert.js';
       import { db, collection, getDocs, getCountFromServer } from '/assets/js/firebase/config.js';
       import { esc } from '/assets/js/utils/escape.js';
       import { toBengaliNumber, formatBengaliDate, sortByDateDesc } from '/assets/js/utils/date.js';
 
       const user = await initAdminPage('dashboard');
-      if (user?.email) document.getElementById('dash-greeting').textContent = `আসসালামু আলাইকুম, ${user.email}`;
+      const role = getCurrentRole();
+      const who = role.role === 'moderator' ? (role.name || user.email) : user.email;
+      document.getElementById('dash-greeting').textContent = `আসসালামু আলাইকুম, ${who}${role.role === 'moderator' ? ' (মডারেটর)' : ''}`;
+      if (new URLSearchParams(location.search).has('denied')) {
+        showAlert({ type: 'warning', message: 'এই বিভাগে আপনার অনুমতি নেই।' });
+      }
 
       const ACTIONS = [
-        ['নোটিশ প্রকাশ', '/admin/notices.html'], ['শিক্ষার্থী ও ফলাফল', '/admin/students.html'],
-        ['অভিভাবক অনুমোদন', '/admin/guardians.html'], ['শিক্ষক যুক্ত করুন', '/admin/teachers.html'],
-        ['ফলাফল প্রকাশ', '/admin/results.html'], ['রুটিন যুক্ত করুন', '/admin/routines.html'],
-        ['ফাইল আপলোড', '/admin/downloads.html'], ['গ্যালারি', '/admin/gallery.html'],
-        ['পরিচালনা পর্ষদ', '/admin/administration.html'], ['সেটিংস ও অধ্যক্ষের বাণী', '/admin/settings.html']
-      ];
+        ['notices', 'নোটিশ প্রকাশ', '/admin/notices.html'], ['students', 'শিক্ষার্থী ও ফলাফল', '/admin/students.html'],
+        ['guardians', 'অভিভাবক অনুমোদন', '/admin/guardians.html'], ['teachers', 'শিক্ষক প্রোফাইল', '/admin/teachers.html'],
+        ['results', 'ফলাফল প্রকাশ', '/admin/results.html'], ['routines', 'রুটিন যুক্ত করুন', '/admin/routines.html'],
+        ['downloads', 'ফাইল আপলোড', '/admin/downloads.html'], ['gallery', 'গ্যালারি', '/admin/gallery.html'],
+        ['administration', 'পরিচালনা পর্ষদ', '/admin/administration.html'], ['settings', 'সেটিংস, মুহতামিম ও অধ্যক্ষের বাণী', '/admin/settings.html'],
+        ['moderators', 'মডারেটর ব্যবস্থাপনা', '/admin/moderators.html']
+      ].filter(([k]) => k === 'moderators' ? role.role === 'admin' : can(k)).map(([, l, u]) => [l, u]);
       document.getElementById('dash-actions').innerHTML = ACTIONS.map(([l, u]) =>
         `<a href="${u}" class="card card-hover px-4 py-3.5 text-sm font-medium text-stone-700 hover:text-brand-800">${l} →</a>`).join('');
 
@@ -71,7 +78,15 @@
         try { return (await getDocs(collection(db, name))).docs.map(d => ({ id: d.id, ...d.data() })); } catch { return []; }
       };
 
-      const [students, guardians, admissions, messages] = await Promise.all([count('students'), all('guardians'), all('admissions'), all('messages')]);
+      const none = async () => [];
+      const [students, guardians, admissions, messages] = await Promise.all([
+        can('students') ? count('students') : null,
+        can('guardians') ? all('guardians') : none(),
+        can('admissions') ? all('admissions') : none(),
+        can('messages') ? all('messages') : none()
+      ]);
+      if (!can('admissions')) document.getElementById('dash-admissions-card').remove();
+      if (!can('messages')) document.getElementById('dash-messages-card').remove();
       const pending = admissions.filter(a => (a.status || 'pending') === 'pending').length;
       const pendingGuardians = guardians.filter(g => g.status === 'pending').length;
       const unread = messages.filter(m => !m.handled).length;
@@ -82,22 +97,22 @@
           <p class="mt-2 text-3xl font-bold ${accent && value ? 'text-gold-600' : 'text-brand-900'}">${value === null ? '—' : toBengaliNumber(value)}</p>
         </a>`;
       document.getElementById('dash-stats').innerHTML = [
-        stat('অপেক্ষমান ভর্তি আবেদন', pending, '/admin/admissions.html', true),
-        stat('নতুন বার্তা', unread, '/admin/messages.html', true),
-        stat('অনুমোদনের অপেক্ষায় অভিভাবক', pendingGuardians, '/admin/guardians.html', true),
-        stat('মোট শিক্ষার্থী', students, '/admin/students.html')
-      ].join('');
+        can('admissions') && stat('অপেক্ষমান ভর্তি আবেদন', pending, '/admin/admissions.html', true),
+        can('messages') && stat('নতুন বার্তা', unread, '/admin/messages.html', true),
+        can('guardians') && stat('অনুমোদনের অপেক্ষায় অভিভাবক', pendingGuardians, '/admin/guardians.html', true),
+        can('students') && stat('মোট শিক্ষার্থী', students, '/admin/students.html')
+      ].filter(Boolean).join('');
 
       const empty = msg => `<p class="px-5 py-8 text-center text-sm text-stone-400">${msg}</p>`;
       const recentAdm = sortByDateDesc(admissions, 'createdAt').slice(0, 5);
-      document.getElementById('dash-admissions').innerHTML = recentAdm.length ? recentAdm.map(a => `
+      if (can('admissions')) document.getElementById('dash-admissions').innerHTML = recentAdm.length ? recentAdm.map(a => `
         <a href="/admin/admissions.html" class="block px-5 py-3 hover:bg-stone-50">
           <p class="text-sm font-medium text-stone-800">${esc(a.studentName)} <span class="font-normal text-stone-500">· ${esc(a.classApplied)}</span></p>
           <p class="text-xs text-stone-500">${esc(a.phone)} · ${formatBengaliDate(a.createdAt)}</p>
         </a>`).join('') : empty('কোনো আবেদন নেই');
 
       const recentMsg = sortByDateDesc(messages, 'createdAt').slice(0, 5);
-      document.getElementById('dash-messages').innerHTML = recentMsg.length ? recentMsg.map(m => `
+      if (can('messages')) document.getElementById('dash-messages').innerHTML = recentMsg.length ? recentMsg.map(m => `
         <a href="/admin/messages.html" class="block px-5 py-3 hover:bg-stone-50">
           <p class="truncate text-sm font-medium text-stone-800">${m.handled ? '' : '<span class="mr-1 inline-block h-2 w-2 rounded-full bg-gold-500"></span>'}${esc(m.name)} <span class="font-normal text-stone-500">· ${esc(m.subject)}</span></p>
           <p class="truncate text-xs text-stone-500">${esc(String(m.message || '').slice(0, 90))}</p>

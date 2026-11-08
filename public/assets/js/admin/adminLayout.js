@@ -4,11 +4,13 @@
  *
  * Every admin page calls initAdminPage(key). The page body stays hidden until
  * Firebase Auth confirms a signed-in administrator (ADMIN_UIDS in
- * firebase/config.js, or a document at admins/{uid}). Everyone else is sent to /admin/login.html.
+ * firebase/config.js, or admins/{uid}) or an active moderator
+ * (moderators/{uid}). Moderators only see the sections they were given.
+ * Everyone else is sent to /admin/login.html.
  * (Real data protection is enforced by firestore.rules; this guard is UX.)
  */
 
-import { auth, isAdminUser, onAuthStateChanged, signOut } from '../firebase/config.js';
+import { auth, getStaffRole, onAuthStateChanged, signOut } from '../firebase/config.js';
 import { SITE } from '../site.js';
 
 const NAV = [
@@ -27,10 +29,24 @@ const NAV = [
   ['calendar', 'ক্যালেন্ডার', '/admin/calendar.html'],
   ['downloads', 'ডাউনলোড', '/admin/downloads.html'],
   ['gallery', 'গ্যালারি', '/admin/gallery.html'],
-  ['settings', 'সেটিংস', '/admin/settings.html']
+  ['settings', 'সেটিংস ও বাণী', '/admin/settings.html'],
+  ['moderators', 'মডারেটর', '/admin/moderators.html']
 ];
 
+/** Sections a moderator can be given (everything except dashboard & moderator management) */
+export const PERMISSION_SECTIONS = NAV.filter(([k]) => !['dashboard', 'moderators'].includes(k)).map(([key, label]) => ({ key, label }));
+
+/** Pages that belong to another section's permission */
+const PAGE_PERMISSION = { application: 'admissions', 'student-results': 'students' };
+
+let currentRole = null;
+/** Role of the signed-in staff member (available after initAdminPage resolves) */
+export const getCurrentRole = () => currentRole;
+export const can = (section) => currentRole?.role === 'admin' || (currentRole?.permissions || []).includes(section);
+
 export function renderAdminHeader(activeNav = 'dashboard', email = '') {
+  const isMod = currentRole?.role === 'moderator';
+  const visibleNav = NAV.filter(([key]) => key === 'dashboard' || (key === 'moderators' ? !isMod : can(key)));
   return `
     <header class="border-b border-stone-200 bg-white">
       <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -42,6 +58,7 @@ export function renderAdminHeader(activeNav = 'dashboard', email = '') {
           </span>
         </a>
         <div class="flex items-center gap-2 text-sm">
+          ${isMod ? '<span class="rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-semibold text-gold-600">মডারেটর</span>' : ''}
           ${email ? `<span class="hidden text-xs text-stone-500 md:inline">${email.replace(/[<>&"']/g, '')}</span>` : ''}
           <a href="/" target="_blank" rel="noopener" class="btn btn-outline px-3 py-1.5 text-xs">ওয়েবসাইট</a>
           <button id="admin-logout-btn" type="button" class="btn px-3 py-1.5 text-xs text-rose-700 hover:bg-rose-50">লগআউট</button>
@@ -49,7 +66,7 @@ export function renderAdminHeader(activeNav = 'dashboard', email = '') {
       </div>
       <nav class="border-t border-stone-100" aria-label="এডমিন মেনু">
         <div class="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
-          ${NAV.map(([key, label, url]) => `
+          ${visibleNav.map(([key, label, url]) => `
             <a href="${url}" class="relative whitespace-nowrap px-3 py-3 text-sm transition ${
               key === activeNav
                 ? 'font-semibold text-brand-800 after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-gold-500'
@@ -64,7 +81,7 @@ export function renderAdminHeader(activeNav = 'dashboard', email = '') {
 
 /**
  * Renders the admin chrome and enforces authentication.
- * @returns {Promise<import('firebase/auth').User>} resolves with the signed-in admin
+ * @returns {Promise<import('firebase/auth').User>} resolves with the signed-in admin / moderator
  */
 export function initAdminPage(activeNav = 'dashboard') {
   document.body.classList.add('invisible');
@@ -79,9 +96,18 @@ export function initAdminPage(activeNav = 'dashboard') {
     onAuthStateChanged(auth, async (user) => {
       if (!user) return goLogin();
 
-      if (!(await isAdminUser(user))) {
+      const role = await getStaffRole(user);
+      if (!role || role.role === 'disabled') {
         await signOut(auth);
-        return goLogin('forbidden');
+        return goLogin(role?.role === 'disabled' ? 'disabled' : 'forbidden');
+      }
+      currentRole = role;
+
+      // Moderators may only open their own sections
+      const section = PAGE_PERMISSION[activeNav] || activeNav;
+      if (role.role === 'moderator' && section !== 'dashboard' && !can(section)) {
+        window.location.replace('/admin/?denied=1');
+        return;
       }
 
       const slot = document.getElementById('admin-header-slot');

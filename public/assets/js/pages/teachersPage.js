@@ -46,10 +46,12 @@ export async function initTeachersPage() {
     ],
     meta: t => `
       ${t.department ? `<span class="tag mt-3">${esc(t.department)}</span>` : ''}
-      ${t.subject || t.qualifications ? `
+      ${t.bio ? `<p class="mt-3 text-xs leading-relaxed text-stone-600">${esc(t.bio)}</p>` : ''}
+      ${t.subject || t.qualifications || t.experience ? `
         <dl class="mt-4 space-y-1 border-t border-stone-100 pt-3 text-left text-xs text-stone-600">
           ${t.subject ? `<div><dt class="inline text-stone-400">বিষয়: </dt><dd class="inline">${esc(t.subject)}</dd></div>` : ''}
           ${t.qualifications ? `<div><dt class="inline text-stone-400">যোগ্যতা: </dt><dd class="inline">${esc(t.qualifications)}</dd></div>` : ''}
+          ${t.experience ? `<div><dt class="inline text-stone-400">অভিজ্ঞতা: </dt><dd class="inline">${esc(t.experience)}</dd></div>` : ''}
         </dl>
       ` : ''}
     `,

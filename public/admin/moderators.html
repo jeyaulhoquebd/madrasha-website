@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>মডারেটর — প্রশাসনিক প্যানেল</title>
+    <link rel="icon" href="https://res.cloudinary.com/edsn06rr/image/upload/v1793898297/images.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/output.css">
+  </head>
+  <body class="invisible flex min-h-screen flex-col bg-ivory">
+    <div id="admin-header-slot"></div>
+
+    <main class="mx-auto w-full max-w-6xl flex-grow space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-brand-900">মডারেটর</h1>
+          <p class="mt-1 max-w-2xl text-sm text-stone-500">মডারেটর তৈরি করে নির্দিষ্ট বিভাগের দায়িত্ব দিন। তৈরি করার পর একটি লগইন লিংক ও পাসওয়ার্ড পাবেন — সেটি মডারেটরকে দিন। মডারেটর শুধু তাঁকে দেওয়া বিভাগগুলোই দেখতে ও পরিবর্তন করতে পারবেন।</p>
+        </div>
+        <button type="button" id="mod-add" class="btn btn-primary">+ নতুন মডারেটর</button>
+      </div>
+
+      <div id="mod-created" class="hidden"></div>
+
+      <div class="card divide-y divide-stone-100" id="mod-list">
+        <p class="py-12 text-center text-sm text-stone-400">লোড হচ্ছে...</p>
+      </div>
+
+      <dialog id="mod-dialog" class="m-auto w-[min(40rem,calc(100%-2rem))] rounded-2xl border border-stone-200 p-0 shadow-2xl backdrop:bg-stone-900/40">
+        <form id="mod-form" class="flex max-h-[90vh] flex-col" novalidate>
+          <div class="flex items-center justify-between border-b border-stone-100 px-6 py-4">
+            <h2 id="mod-form-title" class="text-lg font-semibold text-brand-900">নতুন মডারেটর</h2>
+            <button type="button" data-close class="h-9 w-9 rounded-lg text-stone-400 hover:bg-stone-100" aria-label="বন্ধ করুন">✕</button>
+          </div>
+          <div class="flex-1 space-y-5 overflow-y-auto px-6 py-5">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="block"><span class="field-label">নাম *</span><input name="name" required maxlength="100" class="field"></label>
+              <label class="block"><span class="field-label">মোবাইল</span><input name="phone" maxlength="20" class="field"></label>
+              <label class="block sm:col-span-2"><span class="field-label">ইমেইল (লগইনের জন্য) *</span>
+                <input type="email" name="email" required maxlength="120" class="field" placeholder="moderator@gmail.com">
+                <span class="mt-1 block text-xs text-stone-400">আসল ইমেইল দিন — পাসওয়ার্ড ভুলে গেলে এখানে রিসেট লিংক যাবে।</span></label>
+            </div>
+            <div>
+              <div class="mb-2 flex items-center justify-between">
+                <span class="field-label mb-0">যে বিভাগগুলো দেখতে ও পরিবর্তন করতে পারবেন *</span>
+                <button type="button" id="mod-all" class="text-xs font-semibold text-brand-700 hover:underline">সব নির্বাচন</button>
+              </div>
+              <div id="mod-perms" class="grid gap-2 sm:grid-cols-2"></div>
+            </div>
+            <label class="flex items-center gap-3 rounded-lg border border-stone-200 px-4 py-3">
+              <input type="checkbox" name="active" checked class="h-4 w-4 accent-brand-700">
+              <span class="text-sm text-stone-700">অ্যাকাউন্ট সক্রিয় (টিক তুলে দিলে মডারেটর আর লগইন করতে পারবেন না)</span>
+            </label>
+          </div>
+          <div class="flex justify-end gap-2 border-t border-stone-100 px-6 py-4">
+            <button type="button" data-close class="btn btn-outline">বাতিল</button>
+            <button type="submit" id="mod-save" class="btn btn-primary">মডারেটর তৈরি করুন</button>
+          </div>
+        </form>
+      </dialog>
+    </main>
+
+    <script type="module">
+      import { initAdminPage, PERMISSION_SECTIONS, getCurrentRole } from '/assets/js/admin/adminLayout.js';
+      import { auth, db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, serverTimestamp, createAccountForOther, sendPasswordResetEmail } from '/assets/js/firebase/config.js';
+      import { showAlert } from '/assets/js/components/alert.js';
+      import { esc } from '/assets/js/utils/escape.js';
+      import { formatBengaliDate, toBengaliNumber } from '/assets/js/utils/date.js';
+
+      await initAdminPage('moderators');
+      if (getCurrentRole()?.role !== 'admin') location.replace('/admin/?denied=1');
+
+      const LABEL = Object.fromEntries(PERMISSION_SECTIONS.map(p => [p.key, p.label]));
+      const list = document.getElementById('mod-list');
+      const dialog = document.getElementById('mod-dialog');
+      const form = document.getElementById('mod-form');
+      const saveBtn = document.getElementById('mod-save');
+      let mods = [];
+      let editing = null;
+
+      document.getElementById('mod-perms').innerHTML = PERMISSION_SECTIONS.map(p => `
+        <label class="flex items-center gap-2.5 rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-700 hover:border-brand-200">
+          <input type="checkbox" name="perm" value="${p.key}" class="h-4 w-4 accent-brand-700"> ${p.label}
+        </label>`).join('');
+
+      // Strong random password, avoiding confusing characters (0/O, 1/l)
+      function generatePassword(len = 12) {
+        const sets = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghijkmnpqrstuvwxyz', '23456789', '@#$%&*!?'];
+        const all = sets.join('');
+        const rand = n => crypto.getRandomValues(new Uint32Array(1))[0] % n;
+        const chars = sets.map(s => s[rand(s.length)]);
+        while (chars.length < len) chars.push(all[rand(all.length)]);
+        for (let i = chars.length - 1; i > 0; i--) { const j = rand(i + 1); [chars[i], chars[j]] = [chars[j], chars[i]]; }
+        return chars.join('');
+      }
+
+      const loginLink = email => `${location.origin}/admin/login.html?email=${encodeURIComponent(email)}`;
+
+      async function load() {
+        try {
+          mods = (await getDocs(collection(db, 'moderators'))).docs.map(d => ({ id: d.id, ...d.data() }));
+          render();
+        } catch (e) {
+          list.innerHTML = `<p class="px-5 py-10 text-center text-sm text-rose-700">লোড করা যায়নি: ${esc(e.message)}<br><span class="text-stone-500">Firestore rules Publish করা আছে কি না দেখুন।</span></p>`;
+        }
+      }
+
+      function render() {
+        if (!mods.length) {
+          list.innerHTML = '<p class="px-5 py-12 text-center text-sm text-stone-500">এখনো কোনো মডারেটর তৈরি করা হয়নি।</p>';
+          return;
+        }
+        list.innerHTML = mods.map(m => `
+          <div class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center">
+            <div class="min-w-0 flex-1">
+              <p class="font-medium text-stone-800">${esc(m.name)} ${m.active ? '<span class="ml-1 text-xs text-brand-700">● সক্রিয়</span>' : '<span class="ml-1 text-xs text-rose-700">● বন্ধ</span>'}</p>
+              <p class="text-xs text-stone-500">${esc(m.email)}${m.phone ? ' · ' + esc(m.phone) : ''}${m.createdAt ? ' · ' + formatBengaliDate(m.createdAt) : ''}</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">${(m.permissions || []).map(p => `<span class="tag">${esc(LABEL[p] || p)}</span>`).join('') || '<span class="text-xs text-stone-400">কোনো বিভাগ নেই</span>'}</div>
+            </div>
+            <div class="flex flex-shrink-0 flex-wrap gap-1.5">
+              <button type="button" data-copy="${esc(m.id)}" class="btn btn-outline px-3 py-1.5 text-xs">লগইন লিংক কপি</button>
+              <button type="button" data-reset="${esc(m.id)}" class="btn btn-outline px-3 py-1.5 text-xs">পাসওয়ার্ড রিসেট</button>
+              <button type="button" data-edit="${esc(m.id)}" class="btn btn-outline px-3 py-1.5 text-xs">সম্পাদনা</button>
+              <button type="button" data-delete="${esc(m.id)}" class="btn px-3 py-1.5 text-xs text-rose-700 hover:bg-rose-50">মুছুন</button>
+            </div>
+          </div>`).join('');
+      }
+
+      function open(m = null) {
+        editing = m;
+        form.reset();
+        document.getElementById('mod-form-title').textContent = m ? 'মডারেটর সম্পাদনা' : 'নতুন মডারেটর';
+        saveBtn.textContent = m ? 'সংরক্ষণ' : 'মডারেটর তৈরি করুন';
+        form.email.readOnly = Boolean(m);
+        if (m) {
+          form.name.value = m.name || '';
+          form.phone.value = m.phone || '';
+          form.email.value = m.email || '';
+          form.active.checked = m.active !== false;
+          form.querySelectorAll('[name=perm]').forEach(c => { c.checked = (m.permissions || []).includes(c.value); });
+        }
+        dialog.showModal();
+      }
+
+      function showCreated(m, password) {
+        const box = document.getElementById('mod-created');
+        const link = loginLink(m.email);
+        const text = `আসসালামু আলাইকুম ${m.name},\nআপনাকে খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসার ওয়েবসাইটে মডারেটর করা হয়েছে।\n\nলগইন লিংক: ${link}\nইমেইল: ${m.email}\nপাসওয়ার্ড: ${password}\n\nআপনার দায়িত্ব: ${m.permissions.map(p => LABEL[p]).join(', ')}`;
+        box.className = 'rounded-xl border border-brand-200 bg-brand-50 p-5';
+        box.innerHTML = `
+          <p class="font-semibold text-brand-900">মডারেটর তৈরি হয়েছে — নিচের তথ্য মডারেটরকে দিন</p>
+          <p class="mt-1 text-xs text-rose-700">⚠ পাসওয়ার্ডটি শুধু এখনই দেখা যাবে। এখনই কপি করে সংরক্ষণ করুন।</p>
+          <dl class="mt-4 grid gap-2 text-sm sm:grid-cols-[8rem_1fr]">
+            <dt class="text-stone-500">লগইন লিংক</dt><dd class="break-all font-mono text-xs text-stone-800">${esc(link)}</dd>
+            <dt class="text-stone-500">ইমেইল</dt><dd class="font-mono text-stone-800">${esc(m.email)}</dd>
+            <dt class="text-stone-500">পাসওয়ার্ড</dt><dd class="font-mono text-base font-semibold tracking-wider text-stone-900">${esc(password)}</dd>
+          </dl>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button type="button" id="copy-all" class="btn btn-primary px-4 py-2 text-sm">সব তথ্য কপি করুন</button>
+            <a class="btn btn-outline px-4 py-2 text-sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(text)}">WhatsApp-এ পাঠান</a>
+            <button type="button" id="hide-created" class="btn px-4 py-2 text-sm text-stone-500 hover:bg-white">লুকান</button>
+          </div>`;
+        document.getElementById('copy-all').onclick = async () => {
+          await navigator.clipboard.writeText(text).catch(() => {});
+          showAlert({ type: 'success', message: 'কপি হয়েছে।' });
+        };
+        document.getElementById('hide-created').onclick = () => { box.className = 'hidden'; box.innerHTML = ''; };
+        box.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const permissions = [...form.querySelectorAll('[name=perm]:checked')].map(c => c.value);
+        const name = form.name.value.trim();
+        const email = form.email.value.trim().toLowerCase();
+        if (!name) return showAlert({ type: 'error', message: 'নাম লিখুন।' });
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showAlert({ type: 'error', message: 'সঠিক ইমেইল দিন।' });
+        if (!permissions.length) return showAlert({ type: 'error', message: 'অন্তত একটি বিভাগ নির্বাচন করুন।' });
+
+        const data = { name, email, phone: form.phone.value.trim(), permissions, active: form.active.checked, updatedAt: serverTimestamp() };
+        saveBtn.disabled = true;
+        try {
+          if (editing) {
+            await updateDoc(doc(db, 'moderators', editing.id), data);
+            showAlert({ type: 'success', message: 'মডারেটর হালনাগাদ হয়েছে।' });
+          } else {
+            const password = generatePassword();
+            const uid = await createAccountForOther(email, password);
+            await setDoc(doc(db, 'moderators', uid), { ...data, createdAt: serverTimestamp() });
+            showCreated(data, password);
+          }
+          dialog.close();
+          await load();
+        } catch (err) {
+          const msg = err.code === 'auth/email-already-in-use'
+            ? 'এই ইমেইল দিয়ে আগেই একটি অ্যাকাউন্ট আছে। অন্য ইমেইল ব্যবহার করুন।'
+            : err.code === 'auth/invalid-email' ? 'ইমেইল সঠিক নয়।' : (err.message || 'সংরক্ষণ ব্যর্থ হয়েছে');
+          showAlert({ type: 'error', message: msg });
+        } finally {
+          saveBtn.disabled = false;
+        }
+      });
+
+      document.getElementById('mod-add').onclick = () => open();
+      document.getElementById('mod-all').onclick = () => {
+        const boxes = [...form.querySelectorAll('[name=perm]')];
+        const allOn = boxes.every(b => b.checked);
+        boxes.forEach(b => { b.checked = !allOn; });
+      };
+      dialog.addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === dialog) dialog.close(); });
+
+      list.addEventListener('click', async e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const m = mods.find(x => x.id === (btn.dataset.copy || btn.dataset.reset || btn.dataset.edit || btn.dataset.delete));
+        if (!m) return;
+        if (btn.dataset.edit) open(m);
+        if (btn.dataset.copy) {
+          await navigator.clipboard.writeText(loginLink(m.email)).catch(() => {});
+          showAlert({ type: 'success', message: 'লগইন লিংক কপি হয়েছে।' });
+        }
+        if (btn.dataset.reset) {
+          try {
+            await sendPasswordResetEmail(auth, m.email);
+            showAlert({ type: 'success', message: `${m.email}-এ পাসওয়ার্ড রিসেট লিংক পাঠানো হয়েছে।` });
+          } catch (err) {
+            showAlert({ type: 'error', message: 'পাঠানো যায়নি: ' + err.message });
+          }
+        }
+        if (btn.dataset.delete) {
+          if (!confirm(`"${m.name}" মডারেটরের সব অনুমতি মুছে ফেলবেন? (লগইন আর কাজ করবে না)`)) return;
+          try {
+            await deleteDoc(doc(db, 'moderators', m.id));
+            showAlert({ type: 'success', message: 'মডারেটর মুছে ফেলা হয়েছে।' });
+            await load();
+          } catch (err) {
+            showAlert({ type: 'error', message: 'মুছতে ব্যর্থ: ' + err.message });
+          }
+        }
+      });
+
+      load();
+    </script>
+  </body>
+</html>

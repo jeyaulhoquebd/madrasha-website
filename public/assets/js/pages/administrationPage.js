@@ -11,7 +11,7 @@ import { renderPageHeader, renderSectionHeading } from '../components/pageHeader
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
 import { cdnImage } from '../utils/cloudinary.js';
-import { getMuhtamim, renderMuhtamimCard } from '../components/muhtamim.js';
+import { getMuhtamim, renderMuhtamimCard, getPrincipal, renderPrincipalCard } from '../components/muhtamim.js';
 
 function personCard(m) {
   return `
@@ -30,7 +30,8 @@ export async function initAdministrationPage() {
 
   const members = [];
   let principal = null;
-  const muhtamim = await getMuhtamim();
+  const [muhtamim, principalData] = await Promise.all([getMuhtamim(), getPrincipal()]);
+  const principalCard = principalData ? renderPrincipalCard(principalData) : '';
 
   if (db) {
     try {
@@ -58,17 +59,7 @@ export async function initAdministrationPage() {
 
     <section class="mb-14">${renderMuhtamimCard(muhtamim)}</section>
 
-    ${principal?.name ? `
-      <section class="card mb-14 grid items-center gap-8 p-8 md:grid-cols-[auto_1fr]">
-        <img src="${safeUrl(cdnImage(principal.photoUrl, { width: 320 }), SITE.logoUrl)}" alt="${esc(principal.name)}" class="mx-auto h-28 w-28 rounded-full border border-stone-200 object-cover" />
-        <div>
-          <span class="eyebrow">অধ্যক্ষ</span>
-          <h2 class="mt-2 text-xl font-semibold text-brand-900">${esc(principal.name)}</h2>
-          <p class="text-sm text-stone-500">${esc(principal.designation || 'অধ্যক্ষ')}</p>
-          ${principal.message ? `<blockquote class="mt-4 text-[15px] leading-8 text-stone-700">“${esc(principal.message)}”</blockquote>` : ''}
-        </div>
-      </section>
-    ` : ''}
+    ${principalCard ? `<section class="mb-14">${principalCard}</section>` : ''}
 
     ${leaders.length ? `
       <section class="mb-14">

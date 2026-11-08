@@ -9,6 +9,7 @@
 import { db, doc, getDoc } from '../firebase/config.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
+import { cdnImage } from '../utils/cloudinary.js';
 
 /** Default (published) message — can be changed from Admin → Settings → মুহতামিম */
 export const MUHTAMIM_DEFAULT = {
@@ -44,28 +45,52 @@ export async function getMuhtamim() {
  * @param {object} m
  * @param {{compact?: boolean}} opts compact = homepage teaser (first paragraph + link)
  */
-export function renderMuhtamimCard(m, { compact = false } = {}) {
+export function renderMuhtamimCard(m, opts = {}) {
+  return renderMessageCard(m, { ...opts, id: 'muhtamim', eyebrow: 'মুহতামিম সাহেবের বাণী' });
+}
+
+/** Principal (অধ্যক্ষ) — shown only after the message is added in Admin → Settings */
+export async function getPrincipal() {
+  if (!db) return null;
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'principal'));
+    if (!snap.exists()) return null;
+    const d = snap.data();
+    if (!d.name || !d.message) return null;
+    return { name: d.name, designation: d.designation || 'অধ্যক্ষ', photoUrl: d.photoUrl || SITE.logoUrl, message: d.message };
+  } catch (e) {
+    console.warn('[Firestore] settings/principal:', e.message);
+    return null;
+  }
+}
+
+export function renderPrincipalCard(p, opts = {}) {
+  return renderMessageCard(p, { ...opts, id: 'principal', eyebrow: 'অধ্যক্ষের বাণী' });
+}
+
+/** Shared photo + message card */
+export function renderMessageCard(m, { compact = false, id = 'message', eyebrow = '' } = {}) {
   const paragraphs = String(m.message || '').split(/\n\s*\n|\n/).map(p => p.trim()).filter(Boolean);
   const shown = compact ? paragraphs.slice(0, 2) : paragraphs;
 
   return `
-    <figure id="muhtamim" class="card scroll-mt-6 overflow-hidden">
+    <figure id="${id}" class="card scroll-mt-6 overflow-hidden">
       <div class="grid gap-8 p-6 sm:p-8 md:grid-cols-[14rem_1fr]">
         <div class="text-center md:text-left">
-          <img src="${safeUrl(m.photoUrl, SITE.muhtamimPhoto)}" alt="${esc(m.name)}"
+          <img src="${safeUrl(cdnImage(m.photoUrl, { width: 480 }), SITE.logoUrl)}" alt="${esc(m.name)}"
             width="480" height="480" loading="lazy"
             class="mx-auto aspect-square w-44 rounded-2xl border border-stone-200 object-cover md:w-full" />
           <p class="mt-4 font-bold text-brand-900">${esc(m.name)}</p>
           <p class="text-sm text-stone-500">${esc(m.designation)}</p>
         </div>
         <div>
-          <span class="eyebrow">মুহতামিম সাহেবের বাণী</span>
+          <span class="eyebrow">${eyebrow}</span>
           <blockquote class="relative mt-5 space-y-4 text-[15px] leading-8 text-stone-700">
             <span class="arabic absolute -left-1 -top-6 text-6xl leading-none text-gold-300" aria-hidden="true">“</span>
             ${shown.map(p => `<p>${esc(p)}</p>`).join('')}
           </blockquote>
           ${compact && paragraphs.length > shown.length
-            ? `<a href="/administration.html#muhtamim" class="link mt-5 inline-block text-sm">সম্পূর্ণ বাণী পড়ুন →</a>`
+            ? `<a href="/administration.html#${id}" class="link mt-5 inline-block text-sm">সম্পূর্ণ বাণী পড়ুন →</a>`
             : `<figcaption class="mt-6 border-t border-stone-100 pt-4 text-sm">
                 <span class="font-semibold text-brand-900">— ${esc(m.name)}</span><br>
                 <span class="text-stone-600">${esc(m.designation)}</span><br>
