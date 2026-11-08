@@ -10,6 +10,8 @@ import { esc, safeUrl } from '../utils/escape.js';
 import { getGeneralSettings } from '../components/layout.js';
 import { renderNoticeTicker } from '../components/noticeTicker.js';
 import { SITE } from '../site.js';
+import { renderVideoCard, initVideoCards } from '../components/videoCard.js';
+import { parseVideo } from '../utils/video.js';
 import { cdnImage } from '../utils/cloudinary.js';
 import { getMuhtamim, renderMuhtamimCard, getPrincipal, renderPrincipalCard } from '../components/muhtamim.js';
 
@@ -102,6 +104,24 @@ export async function loadMuhtamim() {
   slot.innerHTML = renderMuhtamimCard(await getMuhtamim(), { compact: true });
 }
 
+export async function loadLatestVideos() {
+  const section = document.getElementById('videos-section');
+  const grid = document.getElementById('home-videos');
+  if (!db || !grid) return;
+  try {
+    const snap = await getDocs(query(collection(db, 'gallery'), where('type', '==', 'video')));
+    const videos = sortByDateDesc(snap.docs.map(d => ({ id: d.id, ...d.data() })), 'createdAt')
+      .filter(v => parseVideo(v.videoUrl))
+      .slice(0, 3);
+    if (!videos.length) return;
+    grid.innerHTML = videos.map((v, i) => renderVideoCard(v, i)).join('');
+    section?.classList.remove('hidden');
+    initVideoCards(grid, videos);
+  } catch (e) {
+    console.warn('[Firestore] videos:', e.message);
+  }
+}
+
 export async function initHomePage() {
-  await Promise.all([loadRecentNotices(), loadMuhtamim(), loadPrincipalMessage(), loadTeacherHighlights()]);
+  await Promise.all([loadRecentNotices(), loadMuhtamim(), loadPrincipalMessage(), loadTeacherHighlights(), loadLatestVideos()]);
 }
