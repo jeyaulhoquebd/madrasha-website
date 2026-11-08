@@ -1,6 +1,6 @@
 /**
  * Optional Cloudinary uploads for the admin panel
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  *
  * Configure in Admin → Settings: Cloudinary "cloud name" and an UNSIGNED
  * upload preset. Without them, admins simply paste file/image links.

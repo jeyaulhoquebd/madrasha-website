@@ -1,6 +1,6 @@
 /**
  * Photo & Video Gallery
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  * Firestore: gallery { title, type: 'image'|'video', category, imageUrl, thumbnailUrl, videoUrl, description, createdAt }
  */
 

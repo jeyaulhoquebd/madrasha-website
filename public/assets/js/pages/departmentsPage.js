@@ -1,6 +1,6 @@
 /**
  * Departments Page
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  * Firestore: departments { name, category, description, subjects[], admissionInfo, displayOrder }
  */
 
@@ -8,7 +8,7 @@ import { db, collection, getDocs, query, orderBy } from '../firebase/config.js';
 import { renderPageHeader } from '../components/pageHeader.js';
 import { esc } from '../utils/escape.js';
 
-// Shown until departments are published in Firestore (standard madrasa curriculum streams)
+// Shown until departments are published in Firestore (general Fazil-madrasa curriculum; no unverified branches)
 const DEFAULT_DEPARTMENTS = [
   {
     name: 'আরবি ও ইসলামী শিক্ষা',
@@ -17,22 +17,16 @@ const DEFAULT_DEPARTMENTS = [
     subjects: ['কুরআন মাজিদ ও তাজবিদ', 'হাদিস শরিফ', 'আকাইদ ও ফিকহ', 'আরবি ভাষা ও সাহিত্য']
   },
   {
-    name: 'সাধারণ শাখা',
-    category: 'দাখিল ও আলিম',
-    description: 'দ্বীনি বিষয়ের পাশাপাশি বাংলা, ইংরেজি, গণিত ও সামাজিক বিজ্ঞানভিত্তিক পাঠ্যক্রম।',
-    subjects: ['বাংলা', 'ইংরেজি', 'গণিত', 'ইসলামের ইতিহাস']
-  },
-  {
-    name: 'বিজ্ঞান শাখা',
-    category: 'দাখিল ও আলিম',
-    description: 'দ্বীনি বিষয়ের পাশাপাশি পদার্থবিজ্ঞান, রসায়ন, জীববিজ্ঞান ও উচ্চতর গণিত।',
-    subjects: ['পদার্থবিজ্ঞান', 'রসায়ন', 'জীববিজ্ঞান', 'উচ্চতর গণিত', 'আইসিটি']
+    name: 'সাধারণ ও আধুনিক বিষয়',
+    category: 'ইবতেদায়ী থেকে ফাজিল',
+    description: 'দ্বীনি বিষয়ের পাশাপাশি জাতীয় শিক্ষাক্রমের বাংলা, ইংরেজি, গণিত, বিজ্ঞান, সমাজবিজ্ঞান ও তথ্যপ্রযুক্তি।',
+    subjects: ['বাংলা', 'ইংরেজি', 'গণিত', 'বিজ্ঞান', 'তথ্যপ্রযুক্তি', 'ইসলামের ইতিহাস']
   },
   {
     name: 'ফাজিল (স্নাতক)',
     category: 'ইসলামী আরবি বিশ্ববিদ্যালয়',
-    description: 'আলিম বা সমমান উত্তীর্ণ শিক্ষার্থীদের জন্য তিন বছর মেয়াদি স্নাতক (পাস) কোর্স।',
-    subjects: ['আল-কুরআন', 'আল-হাদিস', 'আরবি সাহিত্য', 'ইসলামী ইতিহাস']
+    description: 'আলিম বা সমমান উত্তীর্ণ শিক্ষার্থীদের জন্য স্নাতক (পাস) সমমানের কোর্স।',
+    subjects: ['তাফসির', 'হাদিস', 'ফিকহ', 'আকাইদ', 'আরবি সাহিত্য', 'ইসলামের ইতিহাস', 'বাংলা', 'ইংরেজি']
   }
 ];
 

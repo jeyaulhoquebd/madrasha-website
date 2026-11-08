@@ -1,6 +1,6 @@
 /**
  * Homepage Controller
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  * Loads verified, published content from Cloud Firestore.
  */
 
@@ -10,6 +10,7 @@ import { esc, safeUrl } from '../utils/escape.js';
 import { getGeneralSettings } from '../components/layout.js';
 import { renderNoticeTicker } from '../components/noticeTicker.js';
 import { SITE } from '../site.js';
+import { getMuhtamim, renderMuhtamimCard } from '../components/muhtamim.js';
 
 export const OFFICIAL_HERO_IMAGE_URL = SITE.heroUrl;
 export const OFFICIAL_LOGO_URL = SITE.logoUrl;
@@ -114,6 +115,12 @@ export async function loadTeacherHighlights() {
   }
 }
 
+export async function loadMuhtamim() {
+  const slot = document.getElementById('muhtamim-container');
+  if (!slot) return;
+  slot.innerHTML = renderMuhtamimCard(await getMuhtamim(), { compact: true });
+}
+
 export async function initHomePage() {
-  await Promise.all([loadRecentNotices(), loadPrincipalMessage(), loadTeacherHighlights()]);
+  await Promise.all([loadRecentNotices(), loadMuhtamim(), loadPrincipalMessage(), loadTeacherHighlights()]);
 }

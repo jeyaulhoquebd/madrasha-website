@@ -1,6 +1,6 @@
 /**
  * Contact
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  * Contact details come from Firestore settings/general { phone, email, address, officeHours, mapEmbedUrl }
  */
 
@@ -11,7 +11,7 @@ import { renderPageHeader } from '../components/pageHeader.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
 
-const DEFAULT_MAP = 'https://maps.google.com/maps?q=' + encodeURIComponent('Jail Road, Khagrachhari Sadar, Khagrachhari') + '&z=15&output=embed';
+const DEFAULT_MAP = 'https://maps.google.com/maps?q=' + encodeURIComponent(SITE.mapQuery) + '&z=15&output=embed';
 const SUBJECTS = ['ভর্তি সংক্রান্ত', 'ফলাফল ও সনদ', 'সাধারণ পরামর্শ', 'অন্যান্য'];
 
 export async function initContactPage() {
@@ -24,10 +24,12 @@ export async function initContactPage() {
     ? settings.mapEmbedUrl
     : DEFAULT_MAP;
 
+  const phone = settings.phone || SITE.phone;
+  const email = settings.email || SITE.email;
   const info = [
-    ['ঠিকানা', esc(address)],
-    settings.phone ? ['ফোন', `<a href="tel:${esc(settings.phone)}" class="hover:text-brand-700">${esc(settings.phone)}</a>`] : null,
-    settings.email ? ['ইমেইল', `<a href="mailto:${esc(settings.email)}" class="hover:text-brand-700">${esc(settings.email)}</a>`] : null,
+    ['ঠিকানা', `${esc(address)}<span class="mt-1 block text-xs text-stone-500">${SITE.addressDetail}</span>`],
+    ['ফোন', `<a href="tel:${esc(phone)}" class="hover:text-brand-700">${esc(phone)}</a>`],
+    ['ইমেইল', `<a href="mailto:${esc(email)}" class="hover:text-brand-700">${esc(email)}</a>`],
     settings.officeHours ? ['অফিস সময়', esc(settings.officeHours)] : null,
     ['ইআইআইএন', SITE.eiin]
   ].filter(Boolean);

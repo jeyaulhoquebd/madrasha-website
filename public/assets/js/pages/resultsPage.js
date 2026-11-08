@@ -1,6 +1,6 @@
 /**
  * Results
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  * Firestore: results { title, examType, year, remarks, fileUrl, isPublished, publishedAt }
  * Only aggregate, institution-approved result documents are published (no private student data).
  */

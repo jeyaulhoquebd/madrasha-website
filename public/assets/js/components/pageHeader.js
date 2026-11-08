@@ -1,6 +1,6 @@
 /**
  * Minimal page title block shared by all inner pages
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  */
 
 export function renderPageHeader({ eyebrow = '', title = '', lead = '', align = 'left' } = {}) {

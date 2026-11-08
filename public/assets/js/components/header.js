@@ -1,6 +1,6 @@
 /**
  * Site Header (top strip + identity + desktop navigation)
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  */
 
 import { SITE } from '../site.js';
@@ -15,8 +15,8 @@ export function renderHeader(settings = {}, activePage = 'home') {
         <span class="arabic text-sm text-gold-300" lang="ar">${SITE.bismillah}</span>
         <div class="flex items-center gap-4">
           <span class="hidden sm:inline">ইআইআইএন: <span class="text-white">${SITE.eiin}</span></span>
-          <span id="header-phone" class="hidden md:inline"></span>
-          <a href="/admin/login.html" class="text-brand-100/80 transition hover:text-white">এডমিন লগইন</a>
+          <span id="header-phone" class="hidden md:inline">ফোন: <a class="text-white hover:underline" href="tel:${SITE.phone}">${SITE.phone}</a></span>
+          <a href="mailto:${SITE.email}" class="hidden text-brand-100/80 transition hover:text-white lg:inline">${SITE.email}</a>
         </div>
       </div>
     </div>

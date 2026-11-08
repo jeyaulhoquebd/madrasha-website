@@ -1,6 +1,6 @@
 /**
  * Administration Page
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  * Firestore: administration (category: governing | committee | leadership | staff | office, displayOrder)
  *            settings/principal
  */
@@ -10,6 +10,7 @@ import { renderEmptyState } from '../components/emptyState.js';
 import { renderPageHeader, renderSectionHeading } from '../components/pageHeader.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
+import { getMuhtamim, renderMuhtamimCard } from '../components/muhtamim.js';
 
 function personCard(m) {
   return `
@@ -28,6 +29,7 @@ export async function initAdministrationPage() {
 
   const members = [];
   let principal = null;
+  const muhtamim = await getMuhtamim();
 
   if (db) {
     try {
@@ -52,6 +54,8 @@ export async function initAdministrationPage() {
       title: 'প্রশাসন ও পরিচালনা পর্ষদ',
       lead: 'সুষ্ঠু প্রাতিষ্ঠানিক ব্যবস্থাপনা ও শিক্ষার মান বজায় রাখতে দিকনির্দেশনাকারী নেতৃত্ব।'
     })}
+
+    <section class="mb-14">${renderMuhtamimCard(muhtamim)}</section>
 
     ${principal?.name ? `
       <section class="card mb-14 grid items-center gap-8 p-8 md:grid-cols-[auto_1fr]">

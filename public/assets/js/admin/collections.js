@@ -1,6 +1,6 @@
 /**
  * Admin collection definitions (one per admin page)
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  *
  * Field names match what the public pages read, so anything saved here
  * appears on the website immediately.

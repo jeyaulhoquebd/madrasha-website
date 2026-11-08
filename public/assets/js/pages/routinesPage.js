@@ -1,6 +1,6 @@
 /**
  * Class & Exam Routines
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  * Firestore: routines { title, type: 'class'|'exam', className, session, effectiveDate, fileUrl, createdAt }
  */
 

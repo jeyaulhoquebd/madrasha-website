@@ -1,6 +1,6 @@
 /**
  * Firebase Modular Web SDK (Pinned v10.14.1)
- * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রী) মাদ্রাসা
+ * খাগড়াছড়ি বায়তুশ শরফ জব্বারিয়া আদর্শ ফাজিল (ডিগ্রি) মাদ্রাসা
  *
  * HOW TO CONNECT:
  * Firebase Console → Project settings → Your apps → Web app → copy the config
