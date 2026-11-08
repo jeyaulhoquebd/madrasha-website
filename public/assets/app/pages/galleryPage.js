@@ -11,16 +11,8 @@ import { renderPageHeader } from '../components/pageHeader.js';
 import { esc, safeUrl } from '../utils/escape.js';
 import { SITE } from '../site.js';
 import { cdnImage } from '../utils/cloudinary.js';
+import { parseVideo } from '../utils/video.js';
 
-/** Returns an embeddable player URL for YouTube / Facebook links (or null). */
-function embedUrl(url = '') {
-  const yt = /(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([\w-]{11})/.exec(url);
-  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&rel=0`;
-  if (/(facebook\.com|fb\.watch)\//.test(url)) {
-    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`;
-  }
-  return null;
-}
 
 const CATEGORIES = [
   { value: 'all', label: 'সকল' },
@@ -64,8 +56,8 @@ export async function initGalleryPage() {
 
     <div id="video-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-stone-950/90 p-4" role="dialog" aria-modal="true" aria-label="ভিডিও">
       <button id="video-close-btn" type="button" class="absolute right-4 top-4 h-10 w-10 rounded-full text-2xl text-white/80 hover:bg-white/10" aria-label="বন্ধ করুন">✕</button>
-      <div class="w-full max-w-4xl">
-        <div class="aspect-video w-full overflow-hidden rounded-lg bg-black"><iframe id="video-frame" title="ভিডিও" class="h-full w-full" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      <div id="video-box" class="w-full max-w-4xl">
+        <div id="video-ratio" class="aspect-video w-full overflow-hidden rounded-lg bg-black"><iframe id="video-frame" title="ভিডিও" class="h-full w-full" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
         <p id="video-caption" class="mt-3 text-center text-sm text-white/80"></p>
         <p class="mt-1 text-center"><a id="video-external" href="#" target="_blank" rel="noopener" class="text-xs text-white/60 underline hover:text-white">মূল পেজে দেখুন ↗</a></p>
       </div>
@@ -142,7 +134,7 @@ function render() {
           <div class="relative aspect-video bg-stone-100">
             <img src="${safeUrl(cdnImage(v.imageUrl || v.thumbnailUrl, { width: 640 }), SITE.heroUrl)}" alt="" class="h-full w-full object-cover" loading="lazy" />
             <span class="absolute inset-0 m-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/90 pl-1 text-xl text-brand-800 shadow transition group-hover:scale-105">▶</span>
-            <span class="absolute bottom-2 left-2 rounded bg-black/60 px-2 py-0.5 text-[11px] text-white">${/facebook|fb\.watch/.test(v.videoUrl || '') ? 'Facebook' : 'YouTube'}</span>
+            <span class="absolute bottom-2 left-2 rounded bg-black/60 px-2 py-0.5 text-[11px] text-white">${parseVideo(v.videoUrl)?.provider === 'facebook' ? 'Facebook' : 'YouTube'}${v.vertical ? ' · রিল' : ''}</span>
           </div>
           <div class="p-4">
             <h3 class="font-medium text-stone-800">${esc(v.title)}</h3>
@@ -216,12 +208,16 @@ function openLightbox(index) {
 
 function openVideo(v) {
   if (!v) return;
-  const src = embedUrl(v.videoUrl);
-  if (!src) { window.open(v.videoUrl, '_blank', 'noopener'); return; }
+  const video = parseVideo(v.videoUrl);
+  if (!video) { window.open(v.videoUrl, '_blank', 'noopener'); return; }
+  const vertical = v.vertical ?? video.vertical;
   const modal = document.getElementById('video-modal');
-  document.getElementById('video-frame').src = src;
+  // Reels / Shorts are portrait: use a tall 9:16 frame that fits the screen
+  document.getElementById('video-box').className = vertical ? 'w-[min(22rem,calc((100vh-9rem)*0.5625))]' : 'w-full max-w-4xl';
+  document.getElementById('video-ratio').className = `${vertical ? 'aspect-[9/16]' : 'aspect-video'} w-full overflow-hidden rounded-lg bg-black`;
+  document.getElementById('video-frame').src = video.embed;
   document.getElementById('video-caption').textContent = v.title || '';
-  document.getElementById('video-external').href = v.videoUrl;
+  document.getElementById('video-external').href = video.url;
   modal.classList.remove('hidden');
   modal.classList.add('flex');
   const close = () => {
@@ -231,4 +227,7 @@ function openVideo(v) {
   };
   document.getElementById('video-close-btn').onclick = close;
   modal.onclick = e => { if (e.target === modal) close(); };
+  document.addEventListener('keydown', function onKey(e) {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
+  });
 }
