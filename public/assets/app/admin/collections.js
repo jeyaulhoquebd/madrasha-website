@@ -215,10 +215,10 @@ export const COLLECTIONS = {
         { value: 'campus', label: 'ক্যাম্পাস' }, { value: 'events', label: 'অনুষ্ঠান' }, { value: 'sports', label: 'ক্রীড়া ও সাংস্কৃতিক' }
       ] },
       { name: 'title', label: 'শিরোনাম', required: true, full: true, maxlength: 150 },
-      { name: 'imageUrl', label: 'ছবি', type: 'url', upload: 'image', full: true, help: 'ছবির জন্য "ছবি আপলোড" চাপুন। ভিডিওর ক্ষেত্রে খালি রাখলে থাম্বনেইল নিজে থেকে বসবে।' },
+      { name: 'imageUrl', label: 'ছবি', type: 'url', upload: 'image', full: true, help: 'ছবির জন্য "ছবি আপলোড" চাপুন। ভিডিওর ক্ষেত্রে এটি ঐচ্ছিক — খালি রাখলে ভিডিওর নিজের প্রিভিউ দেখাবে।' },
       { name: 'videoUrl', label: 'ভিডিও লিংক বা এম্বেড কোড', type: 'textarea', rows: 3, full: true,
         placeholder: 'YouTube/Facebook লিংক, অথবা Facebook-এর "Embed" থেকে কপি করা <iframe ...> কোড এখানে পেস্ট করুন',
-        help: 'Facebook রিল/ভিডিও লিংক, Facebook-এর এম্বেড লিংক বা পুরো iframe কোড, অথবা YouTube লিংক — যেকোনোটি দিলেই চলবে। Facebook ভিডিওর জন্য একটি থাম্বনেইল ছবি আপলোড করলে কার্ড সুন্দর দেখাবে।' },
+        help: 'Facebook রিল/ভিডিও লিংক, Facebook-এর এম্বেড লিংক বা পুরো iframe কোড, অথবা YouTube লিংক — যেকোনোটি দিলেই চলবে। ওয়েবসাইটে ভিডিওটি কার্ডের ভেতরেই চলবে। চাইলে উপরে নিজের পছন্দের প্রিভিউ ছবি দিতে পারেন (ঐচ্ছিক)।' },
       { name: 'description', label: 'বিবরণ', full: true, maxlength: 300 }
     ],
     beforeSave: d => {
